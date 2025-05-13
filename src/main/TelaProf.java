@@ -1,4 +1,5 @@
-package src.main.jogo.tela;
+package telas;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -19,7 +20,7 @@ public class TelaProf extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(15, 0, 15, 0);
 
-        String[] botoes = {"JOGAR", "RANKING", "EDITAR"};
+        String[] botoes = { "JOGAR", "RANKING", "EDITAR" };
         for (String texto : botoes) {
             JButton btn = createMenuButton(texto);
             mainPanel.add(btn, gbc);
@@ -30,8 +31,8 @@ public class TelaProf extends JFrame {
     }
 
     private JButton createMenuButton(String text) {
-        Color corNormal = new Color(195, 141, 41);           // amarelo base
-        Color corHover = new Color(255, 200, 70);            // amarelo hover mais claro
+        Color corNormal = new Color(195, 141, 41); // amarelo base
+        Color corHover = new Color(255, 200, 70); // amarelo hover mais claro
 
         JButton button = new JButton(text) {
             @Override
@@ -96,5 +97,5 @@ public class TelaProf extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new TelaProf());
-    }
+    }
 }

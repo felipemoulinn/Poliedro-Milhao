@@ -4,7 +4,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class BANCO {
+public class ConexaoBD {
     public boolean verificarLogin(String email, String senha) {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 CallableStatement stmt = conn.prepareCall("{call verificar_login(?, ?)}")) {
