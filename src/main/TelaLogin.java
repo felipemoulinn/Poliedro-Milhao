@@ -1,4 +1,6 @@
-package telas;
+package src.main;
+
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;

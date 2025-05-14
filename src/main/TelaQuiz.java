@@ -1,3 +1,5 @@
+package src.main;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -5,7 +7,7 @@ import javax.swing.Timer;
 import java.sql.*;
 import java.util.*;
 import java.util.List;
-
+final 
 public class TelaQuiz extends JFrame {
     private JLabel lblPergunta;
     private JLabel lblPontuacao;
