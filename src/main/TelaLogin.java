@@ -172,7 +172,7 @@ public class TelaLogin extends JFrame {
     }
 
     private void autenticarUsuario(String email, String senha) {
-        BANCO banco = new BANCO();
+        ConexaoBD banco = new ConexaoBD();
         if (banco.verificarLogin(email, senha)) {
             String tipoUsuario = email.contains("@aluno") ? "aluno" : "professor";
             
@@ -185,7 +185,7 @@ public class TelaLogin extends JFrame {
             if (tipoUsuario.equals("aluno")) {
                 new TelaQuiz().setVisible(true);
             } else {
-                new TelaProfessor().setVisible(true);
+                new TelaProf().setVisible(true);
             }
             dispose();
         } else {
@@ -275,6 +275,7 @@ public class TelaLogin extends JFrame {
             g2.dispose();
         }
 
+        @Override
         protected void paintBorder(Graphics g) {
             // Sem borda
         }
@@ -284,6 +285,6 @@ public class TelaLogin extends JFrame {
         SwingUtilities.invokeLater(() -> {
             TelaLogin tela = new TelaLogin();
             tela.setVisible(true);
-        });
-    }
+        });
+    }
 }

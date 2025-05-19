@@ -1,10 +1,8 @@
 package src.main;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.sql.*;
-import java.util.*;
+import javax.swing.*;
 import javax.swing.border.*;
 
 public class RankingScreen extends JFrame {
@@ -82,7 +80,6 @@ public class RankingScreen extends JFrame {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Erro ao carregar ranking: " + e.getMessage());
             
             // Dados de exemplo com 10 jogadores
@@ -101,17 +98,20 @@ public class RankingScreen extends JFrame {
         
         // Posição com medalha para os 3 primeiros
         JLabel posLabel = new JLabel();
-        if (posicao == 1) {
-            posLabel.setIcon(new ImageIcon("gold.png")); // Substitua pelo caminho da imagem
-            posLabel.setText("");
-        } else if (posicao == 2) {
-            posLabel.setIcon(new ImageIcon("silver.png")); // Substitua pelo caminho da imagem
-            posLabel.setText("");
-        } else if (posicao == 3) {
-            posLabel.setIcon(new ImageIcon("bronze.png")); // Substitua pelo caminho da imagem
-            posLabel.setText("");
-        } else {
-            posLabel.setText(posicao + "°");
+        switch (posicao) {
+            case 1 -> {
+                posLabel.setIcon(new ImageIcon("gold.png")); // Substitua pelo caminho da imagem
+                posLabel.setText("");
+            }
+            case 2 -> {
+                posLabel.setIcon(new ImageIcon("silver.png")); // Substitua pelo caminho da imagem
+                posLabel.setText("");
+            }
+            case 3 -> {
+                posLabel.setIcon(new ImageIcon("bronze.png")); // Substitua pelo caminho da imagem
+                posLabel.setText("");
+            }
+            default -> posLabel.setText(posicao + "°");
         }
         posLabel.setFont(new Font("Arial", Font.BOLD, 28));
         posLabel.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 0));
@@ -125,13 +125,8 @@ public class RankingScreen extends JFrame {
         } else {
             // Placeholder padrão
             ImageIcon icon = new ImageIcon(getClass().getResource("/images/user.png"));
-            if (icon != null) {
-                fotoLabel = new JLabel(new ImageIcon(icon.getImage()
-                    .getScaledInstance(60, 60, Image.SCALE_SMOOTH)));
-            } else {
-                fotoLabel = new JLabel("Foto");
-                fotoLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-            }
+            fotoLabel = new JLabel(new ImageIcon(icon.getImage()
+                .getScaledInstance(60, 60, Image.SCALE_SMOOTH)));
         }
         fotoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
@@ -200,8 +195,8 @@ public class RankingScreen extends JFrame {
 
     // Borda arredondada personalizada
     class RoundBorder extends AbstractBorder {
-        private int radius;
-        private Color color;
+        private final int radius;
+        private final Color color;
         
         public RoundBorder(int radius, Color color) {
             this.radius = radius;
@@ -235,6 +230,6 @@ public class RankingScreen extends JFrame {
                 JOptionPane.showMessageDialog(null, 
                     "Driver JDBC não encontrado!\nAdicione o conector MySQL ao seu projeto.");
             }
-        });
-    }
+        });
+    }
 }

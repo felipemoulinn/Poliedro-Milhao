@@ -1,9 +1,8 @@
-
 package src.main;
 
-import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
+import javax.swing.*;
 
 public class TelaCadastro extends JFrame {
     private JTextField emailField;
