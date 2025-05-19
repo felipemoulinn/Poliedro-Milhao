@@ -1,7 +1,8 @@
+
+package src.main;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
-import java.awt.event.*;
 import java.sql.*;
 
 public class TelaCadastro extends JFrame {
@@ -18,27 +19,29 @@ public class TelaCadastro extends JFrame {
         JPanel painelCentral = new JPanel();
         painelCentral.setBackground(new Color(10, 10, 80));
         painelCentral.setLayout(new BoxLayout(painelCentral, BoxLayout.Y_AXIS));
-        painelCentral.setPreferredSize(new Dimension(400, 400));
+        painelCentral.setPreferredSize(new Dimension(700, 550));
 
         JLabel titulo = new JLabel("CADASTRO");
-        titulo.setFont(new Font("Arial", Font.BOLD, 30));
+        titulo.setFont(new Font("SansSerif", Font.BOLD, 42));
         titulo.setForeground(Color.WHITE);
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
         painelCentral.add(titulo);
         painelCentral.add(Box.createRigidArea(new Dimension(0, 40)));
 
-        JLabel emailLabel = new JLabel("Login (e-mail):");
+        JLabel emailLabel = new JLabel("Login (e-mail) ✉");
         emailLabel.setForeground(Color.WHITE);
+        emailLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         emailLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         painelCentral.add(emailLabel);
 
         emailField = new JTextField();
         estilizarCampoArredondado(emailField);
         painelCentral.add(emailField);
-        painelCentral.add(Box.createRigidArea(new Dimension(0, 20)));
+        painelCentral.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        JLabel senhaLabel = new JLabel("Senha:");
+        JLabel senhaLabel = new JLabel("Senha 🔒");
         senhaLabel.setForeground(Color.WHITE);
+        senhaLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         senhaLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         painelCentral.add(senhaLabel);
 
@@ -47,12 +50,18 @@ public class TelaCadastro extends JFrame {
         painelCentral.add(senhaField);
         painelCentral.add(Box.createRigidArea(new Dimension(0, 30)));
 
-        JButton cadastrarBtn = criarBotaoArredondado("Cadastrar", Color.LIGHT_GRAY, Color.BLACK);
+        JButton cadastrarBtn = criarBotaoArredondado("Cadastrar", new Color(220, 220, 220), Color.BLACK);
+        cadastrarBtn.setMaximumSize(new Dimension(230, 50));
+        cadastrarBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         painelCentral.add(cadastrarBtn);
-        painelCentral.add(Box.createRigidArea(new Dimension(0, 20)));
+        painelCentral.add(Box.createRigidArea(new Dimension(0, 30)));
 
+        JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rodape.setBackground(new Color(10, 10, 80));
         JButton voltarBtn = criarBotaoArredondado("VOLTAR", new Color(255, 153, 0), Color.WHITE);
-        painelCentral.add(voltarBtn);
+        voltarBtn.setPreferredSize(new Dimension(130, 45));
+        rodape.add(voltarBtn);
+        painelCentral.add(rodape);
 
         cadastrarBtn.addActionListener(e -> cadastrarUsuario());
 
@@ -60,10 +69,9 @@ public class TelaCadastro extends JFrame {
         setVisible(true);
     }
 
-    // Campos com bordas arredondadas
     private void estilizarCampoArredondado(JTextField campo) {
-        campo.setMaximumSize(new Dimension(350, 40));
-        campo.setFont(new Font("Arial", Font.PLAIN, 14));
+        campo.setMaximumSize(new Dimension(480, 45));
+        campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
         campo.setOpaque(false);
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         campo.setUI(new javax.swing.plaf.basic.BasicTextFieldUI() {
@@ -77,7 +85,6 @@ public class TelaCadastro extends JFrame {
         });
     }
 
-    // Botões com bordas arredondadas
     private JButton criarBotaoArredondado(String texto, Color bg, Color fg) {
         JButton btn = new JButton(texto) {
             @Override
@@ -85,7 +92,7 @@ public class TelaCadastro extends JFrame {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 40, 40);
                 super.paintComponent(g);
                 g2.dispose();
             }
@@ -94,15 +101,14 @@ public class TelaCadastro extends JFrame {
             protected void paintBorder(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setColor(getForeground());
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 40, 40);
             }
         };
         btn.setContentAreaFilled(false);
         btn.setFocusPainted(false);
         btn.setForeground(fg);
         btn.setBackground(bg);
-        btn.setFont(new Font("Arial", Font.BOLD, 14));
-        btn.setMaximumSize(new Dimension(200, 40));
+        btn.setFont(new Font("SansSerif", Font.BOLD, 18));
         return btn;
     }
 
