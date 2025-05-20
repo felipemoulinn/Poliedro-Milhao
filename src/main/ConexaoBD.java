@@ -17,8 +17,7 @@ public class ConexaoBD {
                 return rs.getInt("sucesso") == 1;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
-        return false;
-    }
+        return false;
+    }
 }

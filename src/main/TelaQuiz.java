@@ -1,18 +1,18 @@
 package src.main;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.Timer;
 import java.sql.*;
 import java.util.*;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.Timer;
 final 
 public class TelaQuiz extends JFrame {
-    private JLabel lblPergunta;
-    private JLabel lblPontuacao;
-    private JLabel lblImagem;
-    private List<JButton> botoesResposta;
+    JLabel lblPergunta;
+    JLabel lblPontuacao;
+    JLabel lblImagem;
+     List<JButton> botoesResposta;
     private List<Questao> bancoQuestoes;
     private int questaoAtual = 0;
     private int pontos = 0;
@@ -445,9 +445,9 @@ public class TelaQuiz extends JFrame {
     }
 
     class Questao {
-        private String pergunta;
-        private List<String> respostas;
-        private int respostaCorreta;
+        private final String pergunta;
+        private final List<String> respostas;
+        private final int respostaCorreta;
 
         public Questao(String pergunta, List<String> respostas, int respostaCorreta) {
             this.pergunta = pergunta;
