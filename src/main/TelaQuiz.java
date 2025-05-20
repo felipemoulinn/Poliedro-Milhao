@@ -7,12 +7,12 @@ import java.util.*;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.Timer;
-final 
-public class TelaQuiz extends JFrame {
+
+final public class TelaQuiz extends JFrame {
     JLabel lblPergunta;
     JLabel lblPontuacao;
     JLabel lblImagem;
-     List<JButton> botoesResposta;
+    List<JButton> botoesResposta;
     private List<Questao> bancoQuestoes;
     private int questaoAtual = 0;
     private int pontos = 0;
@@ -112,6 +112,13 @@ public class TelaQuiz extends JFrame {
 
         // Carrega as perguntas
         carregarPerguntasDoBanco();
+        // No painel de botões auxiliares, adicionar:
+        JButton btnMenu = criarBotaoAuxiliar("Menu");
+        btnMenu.addActionListener(e -> {
+            new TelaProf().setVisible(true);
+            dispose();
+        });
+        painelBotoes.add(btnMenu);
     }
 
     private JButton criarBotaoResposta() {
@@ -258,9 +265,9 @@ public class TelaQuiz extends JFrame {
         }
 
         if (bancoQuestoes.isEmpty()) {
-            JOptionPane.showMessageDialog(this, 
-                "Não foi possível carregar nenhuma pergunta. O jogo será encerrado.", 
-                "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Não foi possível carregar nenhuma pergunta. O jogo será encerrado.",
+                    "Erro", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
 
@@ -355,7 +362,7 @@ public class TelaQuiz extends JFrame {
         } else {
             timer = new Timer(2000, e -> finalizarJogo(false));
         }
-        
+
         timer.setRepeats(false);
         timer.start();
     }
@@ -474,9 +481,9 @@ public class TelaQuiz extends JFrame {
                 Class.forName("com.mysql.jdbc.Driver");
                 new TelaQuiz().setVisible(true);
             } catch (ClassNotFoundException e) {
-                JOptionPane.showMessageDialog(null, 
-                    "Driver JDBC não encontrado!\nAdicione o conector MySQL ao seu projeto.",
-                    "Erro", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null,
+                        "Driver JDBC não encontrado!\nAdicione o conector MySQL ao seu projeto.",
+                        "Erro", JOptionPane.ERROR_MESSAGE);
             }
         });
     }

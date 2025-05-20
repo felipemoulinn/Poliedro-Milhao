@@ -20,17 +20,35 @@ public class TelaProf extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(15, 0, 15, 0);
 
-        String[] botoes = { "JOGAR", "RANKING", "EDITAR", "CONFIGURAÇÃO" }; // Adicionei o novo botão
-        for (String texto : botoes) {
-            JButton btn = createMenuButton(texto);
-            
-            // Adiciona ação para o botão de configuração
-            if (texto.equals("CONFIGURAÇÃO")) {
-                btn.addActionListener(e -> abrirConfiguracaoVolume());
-            }
-            
-            mainPanel.add(btn, gbc);
-        }
+        // No construtor de TelaProf, modificar a criação dos botões:
+String[] botoes = { "JOGAR", "RANKING", "CONFIGURAÇÃO", "VOLTAR" };
+for (String texto : botoes) {
+    JButton btn = createMenuButton(texto);
+    
+    if (texto.equals("JOGAR")) {
+        btn.addActionListener(e -> {
+            new TelaQuiz().setVisible(true);
+            dispose();
+        });
+    } else if (texto.equals("RANKING")) {
+        btn.addActionListener(e -> {
+            new RankingScreen().setVisible(true);
+            dispose();
+        });
+    } else if (texto.equals("CONFIGURAÇÃO")) {
+        btn.addActionListener(e -> {
+            new TelaSom().setVisible(true);
+            // Não dispose() para manter a tela principal aberta
+        });
+    } else if (texto.equals("VOLTAR")) {
+        btn.addActionListener(e -> {
+            new TelaLogin().setVisible(true);
+            dispose();
+        });
+    }
+    
+    mainPanel.add(btn, gbc);
+}
 
         add(mainPanel);
         setVisible(true);
