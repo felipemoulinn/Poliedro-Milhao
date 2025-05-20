@@ -5,6 +5,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class TelaLogin extends JFrame {
     private JTextField txtEmail;
@@ -13,13 +15,15 @@ public class TelaLogin extends JFrame {
     public TelaLogin() {
         // Configuração da janela
         setTitle("Show do Milhão - Login");
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         getContentPane().setBackground(new Color(13, 11, 80));
+        
+        // Definir tamanho inicial e mínimo
+        setSize(1000, 800);
+        setMinimumSize(new Dimension(800, 600));
 
-        // Painel principal
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        // Painel principal com GridBagLayout
+        JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(new Color(13, 11, 80));
         mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
@@ -28,7 +32,6 @@ public class TelaLogin extends JFrame {
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setBackground(new Color(13, 11, 80));
         centerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        centerPanel.setMaximumSize(new Dimension(500, 700));
 
         // Logo
         JLabel logoLabel = new JLabel();
@@ -117,28 +120,63 @@ public class TelaLogin extends JFrame {
         centerPanel.add(lblCadastro);
 
         // Adiciona ao painel principal
-        mainPanel.add(Box.createVerticalGlue());
-        mainPanel.add(centerPanel);
-        mainPanel.add(Box.createVerticalGlue());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
+        gbc.fill = GridBagConstraints.CENTER;
+        mainPanel.add(centerPanel, gbc);
 
         add(mainPanel);
 
         // Configura ação do botão entrar
         configurarAcaoLogin();
+
+        // Listener para redimensionamento
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                Dimension size = getSize();
+                int width = size.width;
+                
+                // Ajusta o tamanho dos campos baseado na largura da janela
+                int fieldWidth = Math.min(400, width - 100);
+                
+                txtEmail.setPreferredSize(new Dimension(fieldWidth, 50));
+                txtEmail.setMaximumSize(new Dimension(fieldWidth, 50));
+                
+                txtSenha.setPreferredSize(new Dimension(fieldWidth, 50));
+                txtSenha.setMaximumSize(new Dimension(fieldWidth, 50));
+                
+                btnEntrar.setPreferredSize(new Dimension(fieldWidth, 55));
+                btnEntrar.setMaximumSize(new Dimension(fieldWidth, 55));
+                
+                revalidate();
+                repaint();
+            }
+        });
     }
 
     private void configurarAcaoLogin() {
-        btnEntrar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String email = txtEmail.getText().trim();
-                String senha = new String(txtSenha.getPassword()).trim();
+        for (Component comp : getContentPane().getComponents()) {
+            if (comp instanceof JButton) {
+                JButton btn = (JButton) comp;
+                if (btn.getText().equals("Entrar")) {
+                    btn.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            String email = txtEmail.getText().trim();
+                            String senha = new String(txtSenha.getPassword()).trim();
 
-                if (validarCampos(email, senha)) {
-                    autenticarUsuario(email, senha);
+                            if (validarCampos(email, senha)) {
+                                autenticarUsuario(email, senha);
+                            }
+                        }
+                    });
                 }
             }
-        });
+        }
 
         // Enter pressionado no campo de senha
         txtSenha.addActionListener(e -> {

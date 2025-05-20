@@ -41,7 +41,7 @@ public class TelaSom extends JFrame {
 
         // Slider personalizado
         JSlider volumeSlider = new JSlider(0, 100, 50);
-        volumeSlider.setPreferredSize(new Dimension(200, 40));
+        volumeSlider.setPreferredSize(new Dimension(500, 120));
         volumeSlider.setMaximumSize(new Dimension(250, 40));
         volumeSlider.setOpaque(false);
         
