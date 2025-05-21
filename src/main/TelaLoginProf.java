@@ -5,8 +5,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
 
-public class TelaProf extends JFrame {
-    public TelaProf() {
+public class TelaLoginProf extends JFrame {
+    public TelaLoginProf() {
         setTitle("Poliedro Milhão - Professor");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
@@ -21,7 +21,7 @@ public class TelaProf extends JFrame {
         gbc.insets = new Insets(15, 0, 15, 0);
 
         // No construtor de TelaProf, modificar a criação dos botões:
-String[] botoes = { "JOGAR", "RANKING", "CONFIGURAÇÃO", "VOLTAR" };
+String[] botoes = { "JOGAR", "RANKING", "EDITAR", "VOLTAR" };
 for (String texto : botoes) {
     JButton btn = createMenuButton(texto);
     
@@ -35,7 +35,7 @@ for (String texto : botoes) {
             new RankingScreen().setVisible(true);
             dispose();
         });
-    } else if (texto.equals("CONFIGURAÇÃO")) {
+    } else if (texto.equals("EDITAR")) {
         btn.addActionListener(e -> {
             new TelaSom().setVisible(true);
             // Não dispose() para manter a tela principal aberta
@@ -65,7 +65,7 @@ for (String texto : botoes) {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
         // Título
-        JLabel titulo = new JLabel("CONFIGURAÇÃO", SwingConstants.CENTER);
+        JLabel titulo = new JLabel("EDITAR", SwingConstants.CENTER);
         titulo.setFont(new Font("Arial", Font.BOLD, 18));
         mainPanel.add(titulo, BorderLayout.NORTH);
         
@@ -167,6 +167,6 @@ for (String texto : botoes) {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaProf());
+        SwingUtilities.invokeLater(() -> new TelaLoginProf());
     }
 }

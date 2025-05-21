@@ -53,7 +53,7 @@ public class RankingScreen extends JFrame {
         JButton backButton = createRoundedButton("Voltar", new Color(31, 176, 195));
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.addActionListener(e -> {
-            new TelaProf().setVisible(true); // Ou TelaLogin, dependendo do fluxo
+            new TelaLoginProf().setVisible(true); // Ou TelaLogin, dependendo do fluxo
             dispose();
         });
     }

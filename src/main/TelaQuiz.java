@@ -115,7 +115,7 @@ final public class TelaQuiz extends JFrame {
         // No painel de botões auxiliares, adicionar:
         JButton btnMenu = criarBotaoAuxiliar("Menu");
         btnMenu.addActionListener(e -> {
-            new TelaProf().setVisible(true);
+            new TelaLoginProf().setVisible(true);
             dispose();
         });
         painelBotoes.add(btnMenu);

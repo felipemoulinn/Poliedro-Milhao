@@ -223,7 +223,7 @@ public class TelaLogin extends JFrame {
             if (tipoUsuario.equals("aluno")) {
                 new TelaQuiz().setVisible(true);
             } else {
-                new TelaProf().setVisible(true);
+                new TelaLoginProf().setVisible(true);
             }
             dispose();
         } else {
