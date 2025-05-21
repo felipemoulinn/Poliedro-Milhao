@@ -5,7 +5,7 @@ import javax.swing.*;
 
 public class TelaDificuldade extends JFrame {
     public TelaDificuldade() {
-        setTitle("Parabéns!");
+        setTitle("Selecionar Dificuldade!");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600); // Tamanho padrão caso não maximize
         setLocationRelativeTo(null);
