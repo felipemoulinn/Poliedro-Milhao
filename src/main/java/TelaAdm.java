@@ -1,58 +1,64 @@
 package src.main;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.*;
 
-public class TelaCongratulations extends JFrame {
-    public TelaCongratulations() {
-        setTitle("Parabéns!");
+public class TelaAdm extends JFrame {
+    public TelaAdm() {
+        setTitle("Poliedro Milhão - Tela de Administrador");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600); // Tamanho padrão caso não maximize
+        setSize(800, 600);
         setLocationRelativeTo(null);
-        
-        // Configura para abrir maximizada
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        
-        // Permite redimensionamento e minimização
-        setResizable(true);
 
-        JPanel mainPanel = new JPanel(new GridBagLayout());
+        JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(new Color(13, 11, 80));
 
-        // Texto com HTML para melhor quebra de linha
-        String textoParabens = "<html><div style='text-align: center;'><div>Parabéns!<div> Você acertou 10 de 12 perguntas e faturou a bagatela de R$ 1.000 policoins!</div></html>";
-        JLabel parabensLabel = new JLabel(textoParabens);
-        parabensLabel.setFont(new Font("SansSerif", Font.BOLD, 32));
-        parabensLabel.setForeground(Color.WHITE);
-        parabensLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setBackground(new Color(13, 11, 80));
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.insets = new Insets(0, 20, 40, 20); // Margens laterais
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(parabensLabel, gbc);
+        gbc.insets = new Insets(15, 0, 15, 0);
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(13, 11, 80));
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-
-        String[] botoes = {"Menu", "Ranking"};
+        String[] botoes = { "JOGAR", "RANKING", "EDITAR", "CADASTRO" };
         for (String texto : botoes) {
             JButton btn = createMenuButton(texto);
-            btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-            buttonPanel.add(btn);
-            buttonPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Espaço maior entre botões
+            
+            if (texto.equals("JOGAR")) {
+                btn.addActionListener(e -> {
+                    new TelaQuiz().setVisible(true);
+                    dispose();
+                });
+            } else if (texto.equals("RANKING")) {
+                btn.addActionListener(e -> {
+                    new RankingScreen().setVisible(true);
+                    dispose();
+                });
+            } else if (texto.equals("EDITAR")) {
+                btn.addActionListener(e -> {
+                    new TelaEditar().setVisible(true);
+                    dispose();
+                });
+            } else if (texto.equals("CADASTRAR")) {
+                btn.addActionListener(e -> {
+                    new TelaCadastro().setVisible(true);
+                    dispose();
+                });
+            }
+            
+            centerPanel.add(btn, gbc);
         }
 
-        gbc.gridy = 1;
-        gbc.weighty = 1.5;
-        gbc.insets = new Insets(0, 20, 20, 20);
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        mainPanel.add(buttonPanel, gbc);
+        JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rodape.setBackground(new Color(10, 10, 80));
+        JButton voltarBtn = createMenuButton("VOLTAR");
+        voltarBtn.setPreferredSize(new Dimension(150, 50));
+        rodape.add(voltarBtn);
+        mainPanel.add(rodape, BorderLayout.SOUTH);
 
         add(mainPanel);
         setVisible(true);
@@ -98,25 +104,25 @@ public class TelaCongratulations extends JFrame {
             }
         };
 
-        button.setFont(new Font("Arial", Font.BOLD, 25));
+        button.setFont(new Font("Arial", Font.BOLD, 32));
         button.setBackground(corNormal);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        
-        // Tamanhos ajustáveis
-        button.setPreferredSize(new Dimension(300, 70));
-        button.setMinimumSize(new Dimension(250, 60));
-        button.setMaximumSize(new Dimension(350, 80));
-        
+        button.setPreferredSize(new Dimension(400, 85));
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
 
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
                 button.setBackground(corHover);
+                button.repaint();
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
+
+            @Override
+            public void mouseExited(MouseEvent e) {
                 button.setBackground(corNormal);
+                button.repaint();
             }
         });
 
@@ -124,6 +130,6 @@ public class TelaCongratulations extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaCongratulations());
+        SwingUtilities.invokeLater(() -> new TelaAdm());
     }
 }
