@@ -121,26 +121,26 @@ public class TelaCadastro extends JFrame {
         }
 
         try {
-            Connection conn = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/showdomilhao", "usuario", "senha"
-            );
+        // Usando a classe ConexaoBD que você já tem
+        ConexaoBD conexaoBD = new ConexaoBD();
+        Connection conn = conexaoBD.obterConexao();
 
-            String sql = "INSERT INTO usuarios (email, senha) VALUES (?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, email);
-            stmt.setString(2, senha);
-            stmt.executeUpdate();
+        String sql = "INSERT INTO usuarios (email, senha) VALUES (?, ?)";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, email);
+        stmt.setString(2, senha);
+        stmt.executeUpdate();
 
-            JOptionPane.showMessageDialog(this, "Usuário cadastrado com sucesso!");
-            emailField.setText("");
-            senhaField.setText("");
+        JOptionPane.showMessageDialog(this, "Usuário cadastrado com sucesso!");
+        emailField.setText("");
+        senhaField.setText("");
 
-            stmt.close();
-            conn.close();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Erro ao cadastrar: " + ex.getMessage());
-        }
+        stmt.close();
+        conn.close();
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Erro ao cadastrar: " + ex.getMessage());
     }
+}
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new TelaCadastro());

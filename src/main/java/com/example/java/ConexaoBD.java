@@ -2,6 +2,8 @@ package com.example.java;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class ConexaoBD {
     private String host = "localhost";
@@ -22,6 +24,26 @@ public class ConexaoBD {
         return DriverManager.getConnection(url, user, password);
     }
     
+    // Adicione este método à classe ConexaoBD
+    public boolean verificarLogin(String email, String senha) {
+        String sql = "SELECT id FROM usuarios WHERE email = ? AND senha = ?";
+
+        try (Connection conexao = obterConexao();
+             PreparedStatement stmt = conexao.prepareStatement(sql)) {
+
+            stmt.setString(1, email);
+            stmt.setString(2, senha); // Na prática, você deve usar hash da senha
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next(); // Retorna true se encontrou um usuário com essas credenciais
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao verificar login:");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public static void main(String[] args) {
         try {
             // Teste de conexão
@@ -40,3 +62,4 @@ public class ConexaoBD {
         }
     }
 }
+

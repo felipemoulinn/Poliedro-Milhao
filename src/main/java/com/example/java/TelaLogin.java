@@ -198,12 +198,15 @@ public class TelaLogin extends JFrame {
             return false;
         }
 
-        if (!email.matches("^[\\w-.]+@(aluno|prof)\\.\\w+$")) {
+        if (!email.matches("^[\\w-.]+@(aluno.com|prof.com)\\.\\w+$")) {
             JOptionPane.showMessageDialog(this, 
                 "O e-mail deve conter '@aluno' ou '@prof' e ser válido", 
                 "Erro", 
                 JOptionPane.ERROR_MESSAGE);
             return false;
+        }
+        if (email.matches("@(admin)")){
+            JOptionPane.showMessageDialog(null, "foi");
         }
 
         return true;
@@ -218,11 +221,15 @@ public class TelaLogin extends JFrame {
                 "Bem-vindo, " + tipoUsuario + "!", 
                 "Sucesso", 
                 JOptionPane.INFORMATION_MESSAGE);
-            
+                
+            if (tipoUsuario.equals("admin")) {
+                new TelaAdm().setVisible(true);
             // Redireciona conforme o tipo de usuário
             if (tipoUsuario.equals("aluno")) {
                 new TelaQuiz().setVisible(true);
             } else {
+            }
+            
                 new TelaLoginProf().setVisible(true);
             }
             dispose();
