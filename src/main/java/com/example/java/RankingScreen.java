@@ -6,117 +6,150 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 public class RankingScreen extends JFrame {
-   private static final String DB_URL = "jdbc:mysql://localhost:3306/poliedro?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
-   private static final String DB_USER = "usuario";
-   private static final String DB_PASS = "senha123"; // NOVA SENHA
+    private ConexaoBD conexaoBD;
+    private int usuarioId;
 
-    public RankingScreen() {
-        setTitle("Poliedro Milhão - Ranking");
-        setSize(800, 900);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+    public RankingScreen(int usuarioId) {
+        try {
+            this.usuarioId = usuarioId;
+            this.conexaoBD = new ConexaoBD();
+            
+            setTitle("Poliedro Milhão - Ranking");
+            setSize(800, 900);
+            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            setLocationRelativeTo(null);
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBackground(new Color(0xA4A4A4));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+            JPanel mainPanel = new JPanel();
+            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+            mainPanel.setBackground(new Color(18, 14, 129));
+            mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        JLabel titleLabel = new JLabel("RANKING TOP 10");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 42));
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 40, 0));
-        mainPanel.add(titleLabel);
+            JLabel titleLabel = new JLabel("RANKING TOP 10");
+            titleLabel.setFont(new Font("Arial", Font.BOLD, 42));
+            titleLabel.setForeground(Color.WHITE);
+            titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 40, 0));
+            mainPanel.add(titleLabel);
 
-        JPanel rankingPanel = new JPanel();
-        rankingPanel.setLayout(new BoxLayout(rankingPanel, BoxLayout.Y_AXIS));
-        rankingPanel.setOpaque(false);
-        rankingPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            JPanel rankingPanel = new JPanel();
+            rankingPanel.setLayout(new BoxLayout(rankingPanel, BoxLayout.Y_AXIS));
+            rankingPanel.setOpaque(false);
+            rankingPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JScrollPane scrollPane = new JScrollPane(rankingPanel);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        scrollPane.setOpaque(false);
-        scrollPane.getViewport().setOpaque(false);
-        scrollPane.setPreferredSize(new Dimension(700, 650));
+            JScrollPane scrollPane = new JScrollPane(rankingPanel);
+            scrollPane.setBorder(BorderFactory.createEmptyBorder());
+            scrollPane.setOpaque(false);
+            scrollPane.getViewport().setOpaque(false);
+            scrollPane.setPreferredSize(new Dimension(700, 650));
 
-        loadRankingData(rankingPanel);
+            loadRankingData(rankingPanel);
 
-        mainPanel.add(scrollPane);
-        mainPanel.add(Box.createVerticalGlue());
+            mainPanel.add(scrollPane);
+            mainPanel.add(Box.createVerticalGlue());
 
-        JButton backButton = createRoundedButton("Voltar", new Color(31, 176, 195));
-        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        backButton.addActionListener(e -> {
-            new TelaLoginProf().setVisible(true); // Ajuste conforme sua lógica
+            JButton backButton = createRoundedButton("Voltar", new Color(31, 176, 195));
+            backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+            backButton.addActionListener(e -> {
+                // Verificar o tipo de usuário no banco de dados
+                try (Connection conn = conexaoBD.obterConexao()) {
+                    String sql = "SELECT tipo FROM usuarios WHERE id = ?";
+                    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                        stmt.setInt(1, usuarioId);
+                        ResultSet rs = stmt.executeQuery();
+                        if (rs.next()) {
+                            String tipoUsuario = rs.getString("tipo");
+                            new TelaDificuldade(tipoUsuario, usuarioId).setVisible(true);
+                            dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(this, 
+                                "Erro: Usuário não encontrado", 
+                                "Erro", 
+                                JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(this, 
+                        "Erro ao verificar tipo de usuário: " + ex.getMessage(), 
+                        "Erro", 
+                        JOptionPane.ERROR_MESSAGE);
+                } catch (Exception e1) {
+                                    // TODO Auto-generated catch block
+                                    e1.printStackTrace();
+                                }
+            });
+
+            mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+            mainPanel.add(backButton);
+
+            add(mainPanel);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, 
+                "Erro ao inicializar tela de ranking: " + e.getMessage(),
+                "Erro",
+                JOptionPane.ERROR_MESSAGE);
             dispose();
-        });
-
-        mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        mainPanel.add(backButton);
-
-        add(mainPanel);
-    }
-
-    private void loadRankingData(JPanel rankingPanel) {
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
-            String sql = "SELECT u.nome_usuario, p.pontos " +
-                         "FROM pontuacoes p " +
-                         "JOIN usuarios u ON p.id_usuario = u.id_usuario " +
-                         "ORDER BY p.pontos DESC LIMIT 10";
-
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                ResultSet rs = stmt.executeQuery();
-
-                int posicao = 1;
-                while (rs.next()) {
-                    String nome = rs.getString("nome_usuario");
-                    int pontos = rs.getInt("pontos");
-
-                    rankingPanel.add(createRankingItem(posicao, nome, null, pontos));
-                    rankingPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-
-                    posicao++;
-                }
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Erro ao carregar ranking: " + e.getMessage());
-
-            for (int i = 1; i <= 10; i++) {
-                rankingPanel.add(createRankingItem(i, "Jogador " + i, null, 2000000 / i));
-                rankingPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-            }
         }
     }
 
-    private JPanel createRankingItem(int posicao, String nome, String fotoPath, int pontuacao) {
+    private void loadRankingData(JPanel rankingPanel) throws Exception {
+        try (Connection conn = conexaoBD.obterConexao()) {
+            String sql = """
+                SELECT u.nome, p.pontos 
+                FROM usuarios u 
+                INNER JOIN pontuacao p ON u.id = p.aluno_id 
+                WHERE u.tipo = 'aluno' 
+                ORDER BY p.pontos DESC 
+                LIMIT 10
+                """;
+
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+
+                int posicao = 1;
+                while (rs.next()) {
+                    String nome = rs.getString("nome");
+                    int pontos = rs.getInt("pontos");
+
+                    rankingPanel.add(createRankingItem(posicao, nome, pontos));
+                    rankingPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+                    posicao++;
+                }
+
+                // Se não houver registros, mostrar mensagem
+                if (posicao == 1) {
+                    JLabel noDataLabel = new JLabel("Ainda não há pontuações registradas");
+                    noDataLabel.setFont(new Font("Arial", Font.BOLD, 20));
+                    noDataLabel.setForeground(Color.WHITE);
+                    noDataLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    rankingPanel.add(noDataLabel);
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, 
+                "Erro ao carregar ranking: " + e.getMessage(),
+                "Erro",
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private JPanel createRankingItem(int posicao, String nome, int pontuacao) {
         JPanel itemPanel = new JPanel(new BorderLayout(20, 0));
         itemPanel.setBackground(Color.WHITE);
         itemPanel.setBorder(new RoundBorder(50, Color.WHITE));
         itemPanel.setMaximumSize(new Dimension(650, 80));
 
+        // Posição com emoji para os três primeiros lugares
         JLabel posLabel = new JLabel();
         switch (posicao) {
-            case 1 -> posLabel.setIcon(new ImageIcon("gold.png"));
-            case 2 -> posLabel.setIcon(new ImageIcon("silver.png"));
-            case 3 -> posLabel.setIcon(new ImageIcon("bronze.png"));
-            default -> posLabel.setText(posicao + "°");
+            case 1 -> posLabel.setText("🥇 1º");
+            case 2 -> posLabel.setText("🥈 2º");
+            case 3 -> posLabel.setText("🥉 3º");
+            default -> posLabel.setText(posicao + "º");
         }
-
         posLabel.setFont(new Font("Arial", Font.BOLD, 28));
         posLabel.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 0));
-        posLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel fotoLabel;
-        if (fotoPath != null && !fotoPath.isEmpty()) {
-            fotoLabel = new JLabel(new ImageIcon(new ImageIcon(fotoPath).getImage()
-                    .getScaledInstance(60, 60, Image.SCALE_SMOOTH)));
-        } else {
-            ImageIcon icon = new ImageIcon(getClass().getResource("/images/user.png"));
-            fotoLabel = new JLabel(new ImageIcon(icon.getImage()
-                    .getScaledInstance(60, 60, Image.SCALE_SMOOTH)));
-        }
-
-        fotoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
+        // Informações do jogador
         JPanel infoPanel = new JPanel(new BorderLayout());
         infoPanel.setOpaque(false);
 
@@ -129,14 +162,9 @@ public class RankingScreen extends JFrame {
 
         infoPanel.add(nomeLabel, BorderLayout.NORTH);
         infoPanel.add(pontosLabel, BorderLayout.SOUTH);
-        infoPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 30));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 30));
 
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
-        leftPanel.setOpaque(false);
-        leftPanel.add(posLabel);
-        leftPanel.add(fotoLabel);
-
-        itemPanel.add(leftPanel, BorderLayout.WEST);
+        itemPanel.add(posLabel, BorderLayout.WEST);
         itemPanel.add(infoPanel, BorderLayout.CENTER);
 
         return itemPanel;
@@ -207,7 +235,7 @@ public class RankingScreen extends JFrame {
         SwingUtilities.invokeLater(() -> {
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
-                new RankingScreen().setVisible(true);
+                new RankingScreen(1).setVisible(true);
             } catch (ClassNotFoundException e) {
                 JOptionPane.showMessageDialog(null, "Driver JDBC não encontrado!");
             }

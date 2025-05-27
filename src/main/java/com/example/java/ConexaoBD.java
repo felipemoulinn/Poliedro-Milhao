@@ -10,7 +10,7 @@ public class ConexaoBD {
     private String port = "3306";
     private String db = "quiz_educacional_db"; 
     private String user = "root";
-    private String password = "imtdb"; 
+    private String password = "Felipe0069@"; 
     
     public Connection obterConexao() throws Exception {
         String url = String.format(
@@ -61,5 +61,10 @@ public class ConexaoBD {
             System.err.println("Erro ao conectar ao banco de dados:");
             e.printStackTrace();
         }
+    }
+
+    public int obterIdUsuario(String email) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'obterIdUsuario'");
     }
 }

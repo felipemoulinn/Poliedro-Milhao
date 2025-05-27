@@ -5,8 +5,10 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class TelaEditar extends JFrame {
+    private int usuarioId;
 
-    public TelaEditar() {
+    public TelaEditar(int usuarioId) {
+        this.usuarioId = usuarioId;
         setTitle("Editar");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -64,12 +66,12 @@ public class TelaEditar extends JFrame {
 
             if (texto.equals("Adicionar perguntas")) {
                 btn.addActionListener(e -> {
-                    new TelaCadastrarPergunta().setVisible(true);
+                    new TelaCadastrarPergunta(usuarioId).setVisible(true);
                     dispose();
                 });
             } else if (texto.equals("Excluir perguntas")) {
                 btn.addActionListener(e -> {
-                    new TelaExcluir().setVisible(true);
+                    new TelaExcluir(usuarioId).setVisible(true);
                     dispose();
                 });
             }
@@ -92,7 +94,7 @@ public class TelaEditar extends JFrame {
 
         // ✅ Ação para retornar à TelaLoginProf
         voltarBtn.addActionListener(e -> {
-            new TelaLoginProf().setVisible(true);
+            new TelaLoginProf(usuarioId).setVisible(true);
             dispose();
         });
 
@@ -171,6 +173,6 @@ public class TelaEditar extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(TelaEditar::new);
+        SwingUtilities.invokeLater(() -> new TelaEditar(1));
     }
 }

@@ -5,8 +5,10 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class TelaAluno extends JFrame {
+    private int usuarioId;
 
-    public TelaAluno() {
+    public TelaAluno(int usuarioId) {
+        this.usuarioId = usuarioId;
         setTitle("Poliedro Milhão - Aluno");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -60,7 +62,7 @@ public class TelaAluno extends JFrame {
         btnJogar.setMinimumSize(new Dimension(280, 65));
 
         btnJogar.addActionListener(e -> {
-            new TelaDificuldade("aluno").setVisible(true); // ✅ CORRIGIDO AQUI
+            new TelaDificuldade("aluno", usuarioId).setVisible(true);
             dispose();
         });
 
@@ -143,6 +145,6 @@ public class TelaAluno extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(TelaAluno::new);
+        SwingUtilities.invokeLater(() -> new TelaAluno(1));
     }
 }

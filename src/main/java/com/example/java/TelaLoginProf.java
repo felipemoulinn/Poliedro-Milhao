@@ -5,8 +5,10 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class TelaLoginProf extends JFrame {
+    private int usuarioId;
 
-    public TelaLoginProf() {
+    public TelaLoginProf(int usuarioId) {
+        this.usuarioId = usuarioId;
         setTitle("Poliedro Milhão - Professor");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -52,21 +54,18 @@ public class TelaLoginProf extends JFrame {
         botoesPanel.setLayout(new BoxLayout(botoesPanel, BoxLayout.Y_AXIS));
         botoesPanel.setBackground(new Color(18, 14, 129));
 
-        String[] botoes = { "JOGAR", "RANKING", "EDITAR" };
+        String[] botoes = { "RANKING", "EDITAR" };
         for (String texto : botoes) {
             JButton btn = createMenuButton(texto);
 
             switch (texto) {
-                case "JOGAR" -> btn.addActionListener(e -> {
-                    new TelaDificuldade("professor").setVisible(true); // ✅ CORRIGIDO AQUI
-                    dispose();
-                });
+                
                 case "RANKING" -> btn.addActionListener(e -> {
-                    new RankingScreen().setVisible(true);
+                    new RankingScreen(usuarioId).setVisible(true);
                     dispose();
                 });
                 case "EDITAR" -> btn.addActionListener(e -> {
-                    new TelaEditar().setVisible(true);
+                    new TelaEditar(usuarioId).setVisible(true);
                     dispose();
                 });
             }
@@ -158,6 +157,6 @@ public class TelaLoginProf extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(TelaLoginProf::new);
+        SwingUtilities.invokeLater(() -> new TelaLoginProf(1));
     }
 }

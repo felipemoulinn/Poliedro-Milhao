@@ -171,20 +171,36 @@ public class TelaLogin extends JFrame {
     }
 
     private void autenticarUsuario(String email, String senha) {
-        if (email.equalsIgnoreCase("aluno@aluno.com") && senha.equals("aluno123")) {
-            JOptionPane.showMessageDialog(this, "Bem-vindo, Aluno!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            new TelaAluno().setVisible(true);  // ✅ ALTERADO
-            dispose();
-        } else if (email.equalsIgnoreCase("prof@prof.com") && senha.equals("prof123")) {
-            JOptionPane.showMessageDialog(this, "Bem-vindo, Professor!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            new TelaLoginProf().setVisible(true);
-            dispose();
-        } else if (email.equalsIgnoreCase("admin@admin.com") && senha.equals("admin123")) {
-            JOptionPane.showMessageDialog(this, "Bem-vindo, Admin!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            new TelaAdm().setVisible(true);
-            dispose();
-        } else {
-            JOptionPane.showMessageDialog(this, "E-mail ou senha incorretos", "Erro", JOptionPane.ERROR_MESSAGE);
+        ConexaoBD conexaoBD = new ConexaoBD();
+        try {
+            String tipoUsuario = conexaoBD.verificarLogin(email, senha);
+            if (tipoUsuario != null) {
+                int usuarioId = conexaoBD.obterIdUsuario(email);
+                
+                switch (tipoUsuario.toLowerCase()) {
+                    case "aluno":
+                        JOptionPane.showMessageDialog(this, "Bem-vindo, Aluno!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                        new TelaAluno(usuarioId).setVisible(true);
+                        break;
+                    case "professor":
+                        JOptionPane.showMessageDialog(this, "Bem-vindo, Professor!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                        new TelaLoginProf(usuarioId).setVisible(true);
+                        break;
+                    case "admin":
+                        JOptionPane.showMessageDialog(this, "Bem-vindo, Admin!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                        new TelaAdm(usuarioId).setVisible(true);
+                        break;
+                    default:
+                        JOptionPane.showMessageDialog(this, "Tipo de usuário não reconhecido", "Erro", JOptionPane.ERROR_MESSAGE);
+                        return;
+                }
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "E-mail ou senha incorretos", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erro ao conectar ao banco de dados: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 

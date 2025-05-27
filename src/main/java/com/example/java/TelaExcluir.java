@@ -6,8 +6,10 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class TelaExcluir extends JFrame {
+    private int usuarioId;
 
-    public TelaExcluir() {
+    public TelaExcluir(int usuarioId) {
+        this.usuarioId = usuarioId;
         setTitle("Excluir Pergunta");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -110,7 +112,7 @@ public class TelaExcluir extends JFrame {
         JButton voltarBtn = createMenuButton("VOLTAR");
         voltarBtn.setPreferredSize(new Dimension(130, 45));
         voltarBtn.addActionListener(e -> {
-            new TelaEditar().setVisible(true);
+            new TelaEditar(usuarioId).setVisible(true);
             dispose();
         });
 
@@ -216,6 +218,6 @@ public class TelaExcluir extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaExcluir());
+        SwingUtilities.invokeLater(() -> new TelaExcluir(1));
     }
 }

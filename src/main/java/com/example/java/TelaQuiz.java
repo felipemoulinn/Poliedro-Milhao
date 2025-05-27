@@ -7,17 +7,20 @@ import java.util.*;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.Timer;
+import java.io.*;
 
 final public class TelaQuiz extends JFrame {
     JLabel lblPergunta;
     JLabel lblPontuacao;
-    JLabel lblImagem;
     List<JButton> botoesResposta;
     private List<Questao> bancoQuestoes;
     private int questaoAtual = 0;
     private int pontos = 0;
     private int perguntasRespondidas = 0;
     private final int TOTAL_PERGUNTAS = 12;
+    private String dificuldade;
+    private ConexaoBD conexaoBD;
+    private int usuarioId;
 
     // Cores
     private final Color COR_FUNDO = new Color(191, 148, 69);
@@ -29,96 +32,172 @@ final public class TelaQuiz extends JFrame {
     private final Color COR_BORDA_BOTAO = new Color(0, 0, 0);
     private final Color COR_TEXTO_BOTAO = new Color(255, 255, 255);
 
-    // Configurações do banco
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/showdomilhao";
-    private static final String DB_USER = "usuario";
-    private static final String DB_PASS = "senha";
+    public TelaQuiz(String dificuldade, int usuarioId) {
+        try {
+            this.dificuldade = dificuldade;
+            this.usuarioId = usuarioId;
+            this.conexaoBD = new ConexaoBD();
 
-    public TelaQuiz() {
-        // Configurações da janela
-        setTitle("Show do Milhão");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setMinimumSize(new Dimension(800, 600));
+            // Tentar carregar progresso salvo
+            carregarProgresso();
+            
+            // Configurações da janela
+            setTitle("Show do Milhão");
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
+            setMinimumSize(new Dimension(800, 600));
 
-        // Painel principal
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 20));
-        mainPanel.setBackground(COR_FUNDO);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+            // Painel principal
+            JPanel mainPanel = new JPanel(new BorderLayout(10, 20));
+            mainPanel.setBackground(COR_FUNDO);
+            mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Painel superior com pontuação
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(COR_FUNDO);
+            // Painel superior com pontuação
+            JPanel topPanel = new JPanel(new BorderLayout());
+            topPanel.setBackground(COR_FUNDO);
 
-        lblPontuacao = new JLabel("Pontos: R$ 0", SwingConstants.RIGHT);
-        lblPontuacao.setFont(new Font("Arial", Font.BOLD, 24));
-        lblPontuacao.setForeground(Color.WHITE);
-        topPanel.add(lblPontuacao, BorderLayout.EAST);
+            lblPontuacao = new JLabel("Pontos: R$ 0", SwingConstants.RIGHT);
+            lblPontuacao.setFont(new Font("Arial", Font.BOLD, 24));
+            lblPontuacao.setForeground(Color.WHITE);
+            topPanel.add(lblPontuacao, BorderLayout.EAST);
 
-        mainPanel.add(topPanel, BorderLayout.NORTH);
+            mainPanel.add(topPanel, BorderLayout.NORTH);
 
-        // Painel da pergunta
-        JPanel painelPergunta = new JPanel(new BorderLayout());
-        painelPergunta.setBackground(COR_FUNDO);
+            // Painel da pergunta
+            JPanel painelPergunta = new JPanel(new BorderLayout());
+            painelPergunta.setBackground(COR_FUNDO);
 
-        lblPergunta = new JLabel("", SwingConstants.CENTER);
-        lblPergunta.setFont(new Font("Arial", Font.BOLD, 32));
-        lblPergunta.setForeground(COR_TEXTO_PERGUNTA);
-        lblPergunta.setBorder(BorderFactory.createEmptyBorder(20, 50, 50, 50));
+            lblPergunta = new JLabel("", SwingConstants.CENTER);
+            lblPergunta.setFont(new Font("Arial", Font.BOLD, 32));
+            lblPergunta.setForeground(COR_TEXTO_PERGUNTA);
+            lblPergunta.setBorder(BorderFactory.createEmptyBorder(20, 50, 50, 50));
 
-        lblImagem = new JLabel();
-        lblImagem.setHorizontalAlignment(SwingConstants.CENTER);
-        lblImagem.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
+            JPanel perguntaContainer = new JPanel(new BorderLayout());
+            perguntaContainer.setBackground(COR_FUNDO);
+            perguntaContainer.add(lblPergunta, BorderLayout.CENTER);
 
-        JPanel perguntaContainer = new JPanel(new BorderLayout());
-        perguntaContainer.setBackground(COR_FUNDO);
-        perguntaContainer.add(lblPergunta, BorderLayout.CENTER);
-        perguntaContainer.add(lblImagem, BorderLayout.SOUTH);
+            painelPergunta.add(perguntaContainer, BorderLayout.CENTER);
+            mainPanel.add(painelPergunta, BorderLayout.NORTH);
 
-        painelPergunta.add(perguntaContainer, BorderLayout.CENTER);
-        mainPanel.add(painelPergunta, BorderLayout.NORTH);
+            // Painel das respostas
+            JPanel painelRespostas = new JPanel(new GridLayout(2, 2, 20, 20));
+            painelRespostas.setBackground(COR_FUNDO);
+            painelRespostas.setBorder(BorderFactory.createEmptyBorder(0, 100, 50, 100));
 
-        // Painel das respostas
-        JPanel painelRespostas = new JPanel(new GridLayout(2, 2, 20, 20));
-        painelRespostas.setBackground(COR_FUNDO);
-        painelRespostas.setBorder(BorderFactory.createEmptyBorder(0, 100, 50, 100));
+            botoesResposta = new ArrayList<>();
+            for (int i = 0; i < 4; i++) {
+                JButton btn = criarBotaoResposta();
+                botoesResposta.add(btn);
+                painelRespostas.add(btn);
+            }
 
-        botoesResposta = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            JButton btn = criarBotaoResposta();
-            botoesResposta.add(btn);
-            painelRespostas.add(btn);
-        }
+            mainPanel.add(painelRespostas, BorderLayout.CENTER);
 
-        mainPanel.add(painelRespostas, BorderLayout.CENTER);
+            // Botões auxiliares
+            JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 20));
+            painelBotoes.setBackground(COR_FUNDO);
 
-        // Botões auxiliares
-        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 20));
-        painelBotoes.setBackground(COR_FUNDO);
+            JButton btnPular = criarBotaoAuxiliar("Pular");
+            JButton btnAjuda = criarBotaoAuxiliar("Ajuda");
+            JButton btnSair = criarBotaoAuxiliar("Sair");
+            JButton btnSalvar = criarBotaoAuxiliar("Salvar e Sair");
 
-        JButton btnPular = criarBotaoAuxiliar("Pular");
-        JButton btnSair = criarBotaoAuxiliar("Sair");
+            painelBotoes.add(btnPular);
+            painelBotoes.add(btnAjuda);
+            painelBotoes.add(btnSalvar);
+            painelBotoes.add(btnSair);
 
-        painelBotoes.add(btnPular);
-        painelBotoes.add(btnSair);
+            mainPanel.add(painelBotoes, BorderLayout.SOUTH);
 
-        mainPanel.add(painelBotoes, BorderLayout.SOUTH);
+            add(mainPanel);
 
-        add(mainPanel);
+            // Configura ações dos botões
+            btnPular.addActionListener(e -> pularPergunta());
+            btnAjuda.addActionListener(e -> mostrarAjuda());
+            btnSalvar.addActionListener(e -> {
+                try {
+                    salvarProgresso();
+                } catch (Exception e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                try (Connection conn = conexaoBD.obterConexao()) {
+                    String sql = "SELECT tipo FROM usuarios WHERE id = ?";
+                    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                        stmt.setInt(1, usuarioId);
+                        ResultSet rs = stmt.executeQuery();
+                        if (rs.next()) {
+                            String tipoUsuario = rs.getString("tipo");
+                            new TelaDificuldade(tipoUsuario, usuarioId).setVisible(true);
+                            dispose();
+                        }
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, 
+                        "Erro ao retornar à tela de dificuldade: " + ex.getMessage(),
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE);
+                } catch (Exception e1) {
+                                    // TODO Auto-generated catch block
+                                    e1.printStackTrace();
+                                }
+            });
+            btnSair.addActionListener(e -> {
+                int opcao = JOptionPane.showConfirmDialog(this,
+                    "Deseja salvar seu progresso antes de sair?",
+                    "Salvar Progresso",
+                    JOptionPane.YES_NO_CANCEL_OPTION);
+                
+                if (opcao == JOptionPane.YES_OPTION) {
+                    try {
+                        salvarProgresso();
+                    } catch (Exception e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                }
+                
+                if (opcao != JOptionPane.CANCEL_OPTION) {
+                    try (Connection conn = conexaoBD.obterConexao()) {
+                        String sql = "SELECT tipo FROM usuarios WHERE id = ?";
+                        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                            stmt.setInt(1, usuarioId);
+                            ResultSet rs = stmt.executeQuery();
+                            if (rs.next()) {
+                                String tipoUsuario = rs.getString("tipo");
+                                new TelaDificuldade(tipoUsuario, usuarioId).setVisible(true);
+                                dispose();
+                            }
+                        }
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this, 
+                            "Erro ao retornar à tela de dificuldade: " + ex.getMessage(),
+                            "Erro",
+                            JOptionPane.ERROR_MESSAGE);
+                    } catch (Exception e1) {
+                                            // TODO Auto-generated catch block
+                                            e1.printStackTrace();
+                                        }
+                }
+            });
 
-        // Configura ações dos botões
-        btnPular.addActionListener(e -> pularPergunta());
-        btnSair.addActionListener(e -> finalizarJogo());
-
-        // Carrega as perguntas
-        carregarPerguntasDoBanco();
-        // No painel de botões auxiliares, adicionar:
-        JButton btnMenu = criarBotaoAuxiliar("Menu");
-        btnMenu.addActionListener(e -> {
-            new TelaLoginProf().setVisible(true);
+            // Carrega as perguntas
+            carregarPerguntasDoBanco();
+            
+            // Atualiza a exibição da pontuação inicial
+            if (pontos > 0) {
+                lblPontuacao.setText("Pontos: R$ " + formatarPontuacao(pontos));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                "Erro ao inicializar o quiz: " + e.getMessage(),
+                "Erro",
+                JOptionPane.ERROR_MESSAGE);
             dispose();
-        });
-        painelBotoes.add(btnMenu);
+        }
     }
 
     private JButton criarBotaoResposta() {
@@ -219,25 +298,29 @@ final public class TelaQuiz extends JFrame {
     private void carregarPerguntasDoBanco() {
         bancoQuestoes = new ArrayList<>();
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
+        try (Connection conn = conexaoBD.obterConexao()) {
             // Busca perguntas aleatórias com suas respostas
-            String sql = "SELECT p.id, p.enunciado, p.materia_id, " +
+            String sql = "SELECT p.id, p.enunciado, p.materia_id, p.ajuda, " +
                     "GROUP_CONCAT(r.texto ORDER BY RAND() SEPARATOR '||') as respostas, " +
-                    "GROUP_CONCAT(r.correta ORDER BY r.correta DESC SEPARATOR '||') as corretas " +
+                    "GROUP_CONCAT(r.correta ORDER BY RAND() SEPARATOR '||') as corretas " +
                     "FROM perguntas p " +
                     "JOIN respostas r ON p.id = r.pergunta_id " +
+                    "WHERE p.nivel_dificuldade = ? " +
                     "GROUP BY p.id " +
-                    "ORDER BY RAND() LIMIT ?";
+                    "ORDER BY RAND()";
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, TOTAL_PERGUNTAS);
+                stmt.setString(1, dificuldade);
                 ResultSet rs = stmt.executeQuery();
 
                 while (rs.next()) {
                     String enunciado = rs.getString("enunciado");
+                    int materiaId = rs.getInt("materia_id");
+                    String ajuda = rs.getString("ajuda");
                     String[] respostas = rs.getString("respostas").split("\\|\\|");
                     String[] corretas = rs.getString("corretas").split("\\|\\|");
 
+                    // Encontra o índice da resposta correta
                     int respostaCorreta = -1;
                     for (int i = 0; i < corretas.length; i++) {
                         if (corretas[i].equals("1")) {
@@ -247,7 +330,10 @@ final public class TelaQuiz extends JFrame {
                     }
 
                     if (respostaCorreta != -1) {
-                        bancoQuestoes.add(new Questao(enunciado, Arrays.asList(respostas), respostaCorreta));
+                        Questao questao = new Questao(enunciado, Arrays.asList(respostas), respostaCorreta, materiaId);
+                        questao.setAjuda(ajuda);
+                        questao.setRespondida(false);
+                        bancoQuestoes.add(questao);
                     }
                 }
             }
@@ -257,7 +343,7 @@ final public class TelaQuiz extends JFrame {
                         JOptionPane.ERROR_MESSAGE);
                 criarBancoQuestoesPadrao();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Erro ao carregar perguntas: " + e.getMessage(), "Erro",
                     JOptionPane.ERROR_MESSAGE);
@@ -271,8 +357,8 @@ final public class TelaQuiz extends JFrame {
             System.exit(1);
         }
 
-        carregarQuestao(0);
-        carregarImagemAleatoria();
+        System.out.println("Total de perguntas carregadas: " + bancoQuestoes.size());
+        carregarQuestao(questaoAtual);
     }
 
     private void criarBancoQuestoesPadrao() {
@@ -285,6 +371,7 @@ final public class TelaQuiz extends JFrame {
         bancoQuestoes.add(new Questao(
                 "Qual questão está relacionada com a matéria de história?",
                 respostas1,
+                1,
                 1));
 
         // Adicione mais perguntas padrão aqui...
@@ -295,72 +382,73 @@ final public class TelaQuiz extends JFrame {
             Questao q = bancoQuestoes.get(indice);
             lblPergunta.setText("<html><div style='text-align: center;'>" + q.getPergunta() + "</div></html>");
 
+            // Configura cada botão com sua respectiva resposta
             for (int i = 0; i < botoesResposta.size(); i++) {
-                botoesResposta.get(i).setText(q.getRespostas().get(i));
-                botoesResposta.get(i).setEnabled(true);
-                botoesResposta.get(i).setBackground(COR_BOTAO_NORMAL);
-            }
-        }
-    }
-
-    private void carregarImagemAleatoria() {
-        try {
-            // Busca imagem aleatória do banco
-            try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
-                String sql = "SELECT caminho_imagem FROM imagens WHERE materia_id = " +
-                        "(SELECT materia_id FROM perguntas WHERE id = " +
-                        "(SELECT pergunta_id FROM respostas WHERE pergunta_id = perguntas.id LIMIT 1)) " +
-                        "ORDER BY RAND() LIMIT 1";
-
-                try (Statement stmt = conn.createStatement();
-                        ResultSet rs = stmt.executeQuery(sql)) {
-
-                    if (rs.next()) {
-                        String caminho = rs.getString("caminho_imagem");
-                        ImageIcon icon = new ImageIcon(caminho);
-                        Image img = icon.getImage().getScaledInstance(300, 200, Image.SCALE_SMOOTH);
-                        lblImagem.setIcon(new ImageIcon(img));
-                    } else {
-                        lblImagem.setIcon(null);
-                    }
+                if (i < q.getRespostas().size()) {
+                    botoesResposta.get(i).setText(q.getRespostas().get(i));
+                    botoesResposta.get(i).setEnabled(true);
+                    botoesResposta.get(i).setBackground(COR_BOTAO_NORMAL);
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Erro ao carregar imagem: " + e.getMessage());
-            lblImagem.setIcon(null);
         }
     }
 
     private void verificarResposta(JButton btnSelecionado) {
         Questao q = bancoQuestoes.get(questaoAtual);
-        String respostaSelecionada = btnSelecionado.getText();
-        String respostaCorreta = q.getRespostas().get(q.getRespostaCorreta());
+        
+        // Se a questão já foi respondida, não permite responder novamente
+        if (q.isRespondida()) {
+            JOptionPane.showMessageDialog(this, 
+                "Esta questão já foi respondida!", 
+                "Aviso", 
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int indiceRespostaCorreta = q.getRespostaCorreta();
+        String respostaCorreta = q.getRespostas().get(indiceRespostaCorreta);
 
         // Desativa todos os botões
         for (JButton btn : botoesResposta) {
             btn.setEnabled(false);
             if (btn.getText().equals(respostaCorreta)) {
                 btn.setBackground(COR_BOTAO_CERTO);
-            } else if (btn == btnSelecionado && !respostaSelecionada.equals(respostaCorreta)) {
+            } 
+            if (btn == btnSelecionado && !btn.getText().equals(respostaCorreta)) {
                 btn.setBackground(COR_BOTAO_ERRADO);
             }
         }
 
         Timer timer;
-        if (respostaSelecionada.equals(respostaCorreta)) {
-            pontos += calcularPontos(perguntasRespondidas);
-            perguntasRespondidas++;
-            lblPontuacao.setText("Pontos: R$ " + formatarPontuacao(pontos));
+        if (btnSelecionado.getText().equals(respostaCorreta)) {
+            // Marca a questão como respondida
+            q.setRespondida(true);
+            
+            JOptionPane.showMessageDialog(this, 
+                "Resposta correta! Continue assim!", 
+                "Acertou!", 
+                JOptionPane.INFORMATION_MESSAGE);
 
-            timer = new Timer(2000, e -> {
-                if (perguntasRespondidas >= TOTAL_PERGUNTAS) {
+            int pontosGanhos = calcularPontos(perguntasRespondidas);
+            pontos += pontosGanhos;
+            lblPontuacao.setText("Pontos: R$ " + formatarPontuacao(pontos));
+            perguntasRespondidas++;
+
+            timer = new Timer(1000, e -> {
+                if (perguntasRespondidas >= TOTAL_PERGUNTAS || questaoAtual >= bancoQuestoes.size() - 1) {
                     finalizarJogo(true);
                 } else {
                     proximaPergunta();
                 }
             });
         } else {
-            timer = new Timer(2000, e -> finalizarJogo(false));
+            q.setRespondida(true);
+            JOptionPane.showMessageDialog(this, 
+                "Que pena! A resposta correta era:\n" + respostaCorreta, 
+                "Errou!", 
+                JOptionPane.ERROR_MESSAGE);
+
+            timer = new Timer(1000, e -> finalizarJogo(false));
         }
 
         timer.setRepeats(false);
@@ -380,36 +468,59 @@ final public class TelaQuiz extends JFrame {
         questaoAtual++;
         if (questaoAtual < bancoQuestoes.size()) {
             carregarQuestao(questaoAtual);
-            carregarImagemAleatoria();
         } else {
             finalizarJogo(true);
         }
     }
 
-    private void finalizarJogo() {
-        finalizarJogo(false);
-    }
-
     private void finalizarJogo(boolean completouTodas) {
-        salvarPontuacao();
-
+        String mensagem;
         if (completouTodas) {
-            JOptionPane.showMessageDialog(this,
-                    "Parabéns! Você completou todas as perguntas!\nPontuação final: R$ " + formatarPontuacao(pontos),
-                    "Fim do Jogo", JOptionPane.INFORMATION_MESSAGE);
+            mensagem = String.format("PARABÉNS! Você completou o Show do Milhão!\n" +
+                                   "Você respondeu todas as %d perguntas corretamente!\n" +
+                                   "Pontuação final: R$ %s", 
+                perguntasRespondidas, formatarPontuacao(pontos));
         } else {
-            JOptionPane.showMessageDialog(this,
-                    "Fim do jogo! Sua pontuação foi: R$ " + formatarPontuacao(pontos),
-                    "Fim do Jogo", JOptionPane.INFORMATION_MESSAGE);
+            // Se errou, perguntasRespondidas já contém o número correto de acertos
+            mensagem = String.format("Fim de jogo!\n" +
+                                   "Você respondeu %d perguntas corretamente.\n" +
+                                   "Pontuação final: R$ %s", 
+                perguntasRespondidas, formatarPontuacao(pontos));
         }
 
+        // Mostra a mensagem com a pontuação atual
+        JOptionPane.showMessageDialog(this, mensagem, "Fim do Jogo", 
+            completouTodas ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
+
+        // Apaga o arquivo de progresso ao finalizar
+        File progressoFile = new File("progresso_" + usuarioId + "_" + dificuldade + ".txt");
+        if (progressoFile.exists()) {
+            progressoFile.delete();
+        }
+
+        // Salva a pontuação no banco
+        salvarPontuacaoBanco();
+
         dispose();
-        new RankingScreen().setVisible(true);
+        new RankingScreen(usuarioId).setVisible(true);
     }
 
     private int calcularPontos(int nivel) {
-        // Pontuação crescente: 1000 para a primeira, 2000 para a segunda, etc.
-        return (nivel + 1) * 1000;
+        // Pontuação base por nível de dificuldade
+        switch (dificuldade.toLowerCase()) {
+            case "facil" -> {
+                return 1000;
+            }
+            case "medio" -> {
+                return 2000;
+            }
+            case "dificil" -> {
+                return 3000;
+            }
+            default -> {
+                return 1000;
+            }
+        }
     }
 
     private String formatarPontuacao(int pontos) {
@@ -421,45 +532,144 @@ final public class TelaQuiz extends JFrame {
         return String.format("%,d", pontos);
     }
 
-    private void salvarPontuacao() {
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
-            // Obtém o ID do usuário logado (você precisará implementar isso)
-            int alunoId = obterIdUsuarioLogado();
+    private void salvarPontuacaoBanco() {
+        try (Connection conn = conexaoBD.obterConexao()) {
+            // Verificar se o usuário é um aluno
+            String sqlVerificarTipo = "SELECT tipo FROM usuarios WHERE id = ?";
+            try (PreparedStatement stmtTipo = conn.prepareStatement(sqlVerificarTipo)) {
+                stmtTipo.setInt(1, usuarioId);
+                ResultSet rs = stmtTipo.executeQuery();
+                
+                if (!rs.next() || !rs.getString("tipo").equals("aluno")) {
+                    System.out.println("Pontuação não salva: usuário não é um aluno");
+                    return;
+                }
+            }
 
-            if (alunoId > 0) {
-                String sql = "INSERT INTO ponttuacao (aluno_id, pontos, ultima_atualizacao) " +
-                        "VALUES (?, ?, NOW()) " +
-                        "ON DUPLICATE KEY UPDATE pontos = GREATEST(pontos, VALUES(pontos)), " +
-                        "ultima_atualizacao = NOW()";
+            // Verificar pontuação atual do aluno
+            String sqlSelect = "SELECT pontos FROM pontuacao WHERE aluno_id = ?";
+            int pontuacaoAtual = 0;
+            boolean pontuacaoExiste = false;
+            
+            try (PreparedStatement stmtSelect = conn.prepareStatement(sqlSelect)) {
+                stmtSelect.setInt(1, usuarioId);
+                ResultSet rs = stmtSelect.executeQuery();
+                if (rs.next()) {
+                    pontuacaoAtual = rs.getInt("pontos");
+                    pontuacaoExiste = true;
+                }
+            }
+
+            // Se a pontuação nova for maior, atualiza
+            if (pontos > pontuacaoAtual) {
+                String sql;
+                if (pontuacaoExiste) {
+                    sql = "UPDATE pontuacao SET pontos = ? WHERE aluno_id = ?";
+                } else {
+                    sql = "INSERT INTO pontuacao (pontos, aluno_id) VALUES (?, ?)";
+                }
 
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                    stmt.setInt(1, alunoId);
-                    stmt.setInt(2, pontos);
+                    stmt.setInt(1, pontos);
+                    stmt.setInt(2, usuarioId);
                     stmt.executeUpdate();
                 }
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erro ao salvar pontuação: " + e.getMessage(), "Erro",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, 
+                "Erro ao salvar pontuação: " + e.getMessage(), 
+                "Erro", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private int obterIdUsuarioLogado() {
-        // Implemente a lógica para obter o ID do usuário logado
-        // Por exemplo, você pode armazenar isso quando o usuário faz login
-        return 1; // Temporário - substitua pela implementação real
+    private void mostrarAjuda() {
+        if (questaoAtual >= 0 && questaoAtual < bancoQuestoes.size()) {
+            Questao questaoAtual = bancoQuestoes.get(this.questaoAtual);
+            String ajuda = questaoAtual.getAjuda();
+            if (ajuda != null && !ajuda.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                    ajuda,
+                    "Ajuda",
+                    JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                    "Não há dica disponível para esta pergunta.",
+                    "Ajuda",
+                    JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+    }
+
+    private void salvarProgresso() throws IOException {
+        File progressoFile = new File("progresso_" + usuarioId + "_" + dificuldade + ".txt");
+        try (PrintWriter writer = new PrintWriter(new FileWriter(progressoFile))) {
+            // Salva o estado atual do jogo
+            writer.println(questaoAtual + "," + pontos + "," + perguntasRespondidas);
+            
+            // Salva quais questões já foram respondidas
+            StringBuilder questoesRespondidas = new StringBuilder();
+            for (Questao q : bancoQuestoes) {
+                questoesRespondidas.append(q.isRespondida() ? "1" : "0").append(",");
+            }
+            writer.println(questoesRespondidas.toString());
+
+            JOptionPane.showMessageDialog(this,
+                "Progresso salvo com sucesso!",
+                "Sucesso",
+                JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void carregarProgresso() {
+        File progressoFile = new File("progresso_" + usuarioId + "_" + dificuldade + ".txt");
+        if (progressoFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(progressoFile))) {
+                // Carrega o estado do jogo
+                String linha = reader.readLine();
+                if (linha != null) {
+                    String[] dados = linha.split(",");
+                    if (dados.length == 3) {
+                        this.questaoAtual = Integer.parseInt(dados[0]);
+                        this.pontos = Integer.parseInt(dados[1]);
+                        this.perguntasRespondidas = Integer.parseInt(dados[2]);
+                    }
+                }
+                
+                // Carrega o estado das questões respondidas
+                linha = reader.readLine();
+                if (linha != null) {
+                    String[] questoesRespondidas = linha.split(",");
+                    for (int i = 0; i < questoesRespondidas.length && i < bancoQuestoes.size(); i++) {
+                        bancoQuestoes.get(i).setRespondida(questoesRespondidas[i].equals("1"));
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this,
+                    "Erro ao carregar progresso: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     class Questao {
         private final String pergunta;
         private final List<String> respostas;
         private final int respostaCorreta;
+        private final int materiaId;
+        private String ajuda;
+        private boolean respondida;
 
-        public Questao(String pergunta, List<String> respostas, int respostaCorreta) {
+        public Questao(String pergunta, List<String> respostas, int respostaCorreta, int materiaId) {
             this.pergunta = pergunta;
             this.respostas = respostas;
             this.respostaCorreta = respostaCorreta;
+            this.materiaId = materiaId;
+            this.ajuda = "";
+            this.respondida = false;
         }
 
         public String getPergunta() {
@@ -471,7 +681,27 @@ final public class TelaQuiz extends JFrame {
         }
 
         public int getRespostaCorreta() {
-            return respostaCorreta;
+            return respostaCorreta + 1; // Incrementa o índice para corrigir a verificação
+        }
+
+        public int getMateriaId() {
+            return materiaId;
+        }
+
+        public String getAjuda() {
+            return ajuda;
+        }
+
+        public void setAjuda(String ajuda) {
+            this.ajuda = ajuda;
+        }
+
+        public boolean isRespondida() {
+            return respondida;
+        }
+
+        public void setRespondida(boolean respondida) {
+            this.respondida = respondida;
         }
     }
 
@@ -479,7 +709,7 @@ final public class TelaQuiz extends JFrame {
         SwingUtilities.invokeLater(() -> {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
-                new TelaQuiz().setVisible(true);
+                new TelaQuiz("medio", 1).setVisible(true);
             } catch (ClassNotFoundException e) {
                 JOptionPane.showMessageDialog(null,
                         "Driver JDBC não encontrado!\nAdicione o conector MySQL ao seu projeto.",

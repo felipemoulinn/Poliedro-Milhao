@@ -6,9 +6,11 @@ import javax.swing.*;
 
 public class TelaDificuldade extends JFrame {
     private String tipoUsuario;
+    private int usuarioId;
 
-    public TelaDificuldade(String tipoUsuario) {
+    public TelaDificuldade(String tipoUsuario, int usuarioId) {
         this.tipoUsuario = tipoUsuario;
+        this.usuarioId = usuarioId;
 
         setTitle("Selecionar Dificuldade!");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -62,6 +64,11 @@ public class TelaDificuldade extends JFrame {
             btn.setPreferredSize(new Dimension(300, 65));
             btn.setMinimumSize(new Dimension(300, 65));
             btn.setMaximumSize(new Dimension(300, 65));
+            btn.addActionListener(e -> {
+                String dificuldade = texto.toLowerCase().replace('á', 'a').replace('é', 'e').replace('í', 'i');
+                new TelaQuiz(dificuldade, usuarioId).setVisible(true);
+                dispose();
+            });
             centroPanel.add(btn);
             centroPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         }
@@ -82,13 +89,13 @@ public class TelaDificuldade extends JFrame {
         btnVoltar.addActionListener(e -> {
             switch (tipoUsuario.toLowerCase()) {
                 case "aluno":
-                    new TelaAluno().setVisible(true);
+                    new TelaAluno(usuarioId).setVisible(true);
                     break;
                 case "professor":
-                    new TelaLoginProf().setVisible(true);
+                    new TelaLoginProf(usuarioId).setVisible(true);
                     break;
                 case "admin":
-                    new TelaAdm().setVisible(true);
+                    new TelaAdm(usuarioId).setVisible(true);
                     break;
                 default:
                     JOptionPane.showMessageDialog(this, "Tipo de usuário desconhecido!", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -165,6 +172,6 @@ public class TelaDificuldade extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaDificuldade("aluno"));
+        SwingUtilities.invokeLater(() -> new TelaDificuldade("aluno", 1));
     }
 }

@@ -5,8 +5,10 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class TelaAdm extends JFrame {
+    private int usuarioId;
 
-    public TelaAdm() {
+    public TelaAdm(int usuarioId) {
+        this.usuarioId = usuarioId;
         setTitle("Poliedro Milhão - Administrador");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -52,21 +54,19 @@ public class TelaAdm extends JFrame {
         botoesPanel.setLayout(new BoxLayout(botoesPanel, BoxLayout.Y_AXIS));
         botoesPanel.setBackground(new Color(18, 14, 129));
 
-        String[] botoes = { "JOGAR", "RANKING", "EDITAR", "CADASTRAR" };
+        String[] botoes = {"RANKING", "EDITAR", "CADASTRAR" };
         for (String texto : botoes) {
             JButton btn = createMenuButton(texto);
 
             switch (texto) {
-                case "JOGAR" -> btn.addActionListener(e -> {
-                    new TelaQuiz().setVisible(true);
-                    dispose();
-                });
+                
                 case "RANKING" -> btn.addActionListener(e -> {
-                    new RankingScreen().setVisible(true);
+                    new RankingScreen(usuarioId).setVisible(true);
                     dispose();
                 });
                 case "EDITAR" -> btn.addActionListener(e -> {
-                    new TelaEditar().setVisible(true);
+                    new TelaEditar(usuarioId).setVisible(true);
+                    dispose();
                 });
                 case "CADASTRAR" -> btn.addActionListener(e -> {
                     new TelaCadastro().setVisible(true);
@@ -160,6 +160,6 @@ public class TelaAdm extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(TelaAdm::new);
+        SwingUtilities.invokeLater(() -> new TelaAdm(1));
     }
 }
