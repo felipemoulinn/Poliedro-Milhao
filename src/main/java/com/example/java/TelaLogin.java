@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
-import java.net.URL;
 
 public class TelaLogin extends JFrame {
 
@@ -27,11 +26,10 @@ public class TelaLogin extends JFrame {
         centerPanel.setBackground(new Color(13, 11, 80));
         centerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Logo aumentada
         JLabel logoLabel = new JLabel();
         try {
             ImageIcon logoIcon = new ImageIcon(getClass().getResource("/logo.png"));
-            Image logoImage = logoIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH); // tamanho aumentado
+            Image logoImage = logoIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
             logoLabel.setIcon(new ImageIcon(logoImage));
         } catch (Exception e) {
             logoLabel.setText("Show do Milhão");
@@ -41,14 +39,12 @@ public class TelaLogin extends JFrame {
         logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         logoLabel.setBorder(new EmptyBorder(0, 0, 50, 0));
 
-        // Título
         JLabel titulo = new JLabel("Login");
         titulo.setFont(new Font("Arial", Font.BOLD, 36));
         titulo.setForeground(Color.WHITE);
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
         titulo.setBorder(new EmptyBorder(0, 0, 30, 0));
 
-        // Campo de e-mail com ícone
         JLabel lblEmail = new JLabel(" E-mail");
         lblEmail.setFont(new Font("Arial", Font.PLAIN, 18));
         lblEmail.setForeground(Color.WHITE);
@@ -70,7 +66,6 @@ public class TelaLogin extends JFrame {
         txtEmail.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         txtEmail.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Campo de senha com ícone
         JLabel lblSenha = new JLabel(" Senha");
         lblSenha.setFont(new Font("Arial", Font.PLAIN, 18));
         lblSenha.setForeground(Color.WHITE);
@@ -92,7 +87,6 @@ public class TelaLogin extends JFrame {
         txtSenha.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         txtSenha.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Botão de entrar
         JButton btnEntrar = new RoundJButton("Entrar", 40);
         btnEntrar.setFont(new Font("Arial", Font.BOLD, 20));
         btnEntrar.setBackground(new Color(0, 120, 215));
@@ -168,8 +162,8 @@ public class TelaLogin extends JFrame {
             return false;
         }
 
-        if (!email.matches("^[\\w-.]+@(aluno.com|prof.com)\\.\\w+$")) {
-            JOptionPane.showMessageDialog(this, "O e-mail deve conter '@aluno' ou '@prof' e ser válido", "Erro", JOptionPane.ERROR_MESSAGE);
+        if (!email.matches("^[\\w-.]+@(aluno.com|prof.com|admin.com)\\b")) {
+            JOptionPane.showMessageDialog(this, "O e-mail deve conter '@aluno.com', '@prof.com' ou '@admin.com'", "Erro", JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
@@ -177,40 +171,20 @@ public class TelaLogin extends JFrame {
     }
 
     private void autenticarUsuario(String email, String senha) {
-        ConexaoBD banco = new ConexaoBD();
-        String tipoUsuario = banco.verificarLogin(email, senha);
-
-        if (tipoUsuario != null) {
-            JOptionPane.showMessageDialog(this,
-                    "Bem-vindo, " + tipoUsuario + "!",
-                    "Sucesso",
-                    JOptionPane.INFORMATION_MESSAGE);
-
-            switch (tipoUsuario) {
-                case "aluno":
-                    new TelaQuiz().setVisible(true);
-                    break;
-                case "professor":
-                    new TelaLoginProf().setVisible(true);
-                    break;
-                case "admin":
-                    new TelaAdm().setVisible(true);
-                    break;
-                default:
-                    JOptionPane.showMessageDialog(this,
-                            "Tipo de usuário desconhecido.",
-                            "Erro",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-            }
-
-            dispose(); // Fecha a tela de login
-
+        if (email.equalsIgnoreCase("aluno@aluno.com") && senha.equals("aluno123")) {
+            JOptionPane.showMessageDialog(this, "Bem-vindo, Aluno!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            new TelaAluno().setVisible(true);  // ✅ ALTERADO
+            dispose();
+        } else if (email.equalsIgnoreCase("prof@prof.com") && senha.equals("prof123")) {
+            JOptionPane.showMessageDialog(this, "Bem-vindo, Professor!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            new TelaLoginProf().setVisible(true);
+            dispose();
+        } else if (email.equalsIgnoreCase("admin@admin.com") && senha.equals("admin123")) {
+            JOptionPane.showMessageDialog(this, "Bem-vindo, Admin!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            new TelaAdm().setVisible(true);
+            dispose();
         } else {
-            JOptionPane.showMessageDialog(this,
-                    "E-mail ou senha incorretos",
-                    "Erro",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "E-mail ou senha incorretos", "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 

@@ -60,7 +60,7 @@ public class TelaAluno extends JFrame {
         btnJogar.setMinimumSize(new Dimension(280, 65));
 
         btnJogar.addActionListener(e -> {
-            new TelaDificuldade().setVisible(true);
+            new TelaDificuldade("aluno").setVisible(true); // ✅ CORRIGIDO AQUI
             dispose();
         });
 

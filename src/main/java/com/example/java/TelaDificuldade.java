@@ -5,7 +5,11 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class TelaDificuldade extends JFrame {
-    public TelaDificuldade() {
+    private String tipoUsuario;
+
+    public TelaDificuldade(String tipoUsuario) {
+        this.tipoUsuario = tipoUsuario;
+
         setTitle("Selecionar Dificuldade!");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
@@ -55,6 +59,9 @@ public class TelaDificuldade extends JFrame {
         for (String texto : botoes) {
             JButton btn = createMenuButton(texto);
             btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+            btn.setPreferredSize(new Dimension(300, 65));
+            btn.setMinimumSize(new Dimension(300, 65));
+            btn.setMaximumSize(new Dimension(300, 65));
             centroPanel.add(btn);
             centroPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         }
@@ -73,7 +80,19 @@ public class TelaDificuldade extends JFrame {
         btnVoltar.setFont(new Font("Arial", Font.BOLD, 20));
 
         btnVoltar.addActionListener(e -> {
-            new TelaAluno().setVisible(true); // ou TelaLoginProf / TelaAdm, conforme origem
+            switch (tipoUsuario.toLowerCase()) {
+                case "aluno":
+                    new TelaAluno().setVisible(true);
+                    break;
+                case "professor":
+                    new TelaLoginProf().setVisible(true);
+                    break;
+                case "admin":
+                    new TelaAdm().setVisible(true);
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(this, "Tipo de usuário desconhecido!", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
             dispose();
         });
 
@@ -129,9 +148,6 @@ public class TelaDificuldade extends JFrame {
         botao.setBackground(corNormal);
         botao.setForeground(Color.WHITE);
         botao.setFocusPainted(false);
-        botao.setPreferredSize(new Dimension(300, 65));
-        botao.setMinimumSize(new Dimension(300, 65));
-        botao.setMaximumSize(new Dimension(300, 65));
         botao.setContentAreaFilled(false);
         botao.setBorderPainted(false);
 
@@ -149,6 +165,6 @@ public class TelaDificuldade extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(TelaDificuldade::new);
+        SwingUtilities.invokeLater(() -> new TelaDificuldade("aluno"));
     }
 }
