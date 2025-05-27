@@ -8,6 +8,8 @@ public class TelaCadastro extends JFrame {
 
     private JTextField emailField;
     private JPasswordField senhaField;
+    private JTextField nomeField;
+    private JComboBox<String> tipoCombo;
 
     public TelaCadastro() {
         setTitle("Cadastro");
@@ -32,6 +34,7 @@ public class TelaCadastro extends JFrame {
         painelCentral.add(titulo);
         painelCentral.add(Box.createRigidArea(new Dimension(0, 40)));
 
+        // Email
         JLabel emailLabel = new JLabel("Login (e-mail) ✉");
         emailLabel.setForeground(Color.WHITE);
         emailLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
@@ -43,6 +46,7 @@ public class TelaCadastro extends JFrame {
         painelCentral.add(emailField);
         painelCentral.add(Box.createRigidArea(new Dimension(0, 10)));
 
+        // Senha
         JLabel senhaLabel = new JLabel("Senha 🔒");
         senhaLabel.setForeground(Color.WHITE);
         senhaLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
@@ -52,8 +56,33 @@ public class TelaCadastro extends JFrame {
         senhaField = new JPasswordField();
         estilizarCampoArredondado(senhaField);
         painelCentral.add(senhaField);
+        painelCentral.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        // Nome
+        JLabel nomeLabel = new JLabel("Nome:");
+        nomeLabel.setForeground(Color.WHITE);
+        nomeLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        nomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        painelCentral.add(nomeLabel);
+
+        nomeField = new JTextField();
+        estilizarCampoArredondado(nomeField);
+        painelCentral.add(nomeField);
+        painelCentral.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        // Tipo
+        JLabel tipoLabel = new JLabel("Tipo de Usuário:");
+        tipoLabel.setForeground(Color.WHITE);
+        tipoLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        tipoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        painelCentral.add(tipoLabel);
+
+        tipoCombo = new JComboBox<>(new String[]{"admin", "professor", "aluno"});
+        tipoCombo.setMaximumSize(new Dimension(600, 40));
+        painelCentral.add(tipoCombo);
         painelCentral.add(Box.createRigidArea(new Dimension(0, 30)));
 
+        // Botão cadastrar
         JButton cadastrarBtn = criarBotaoArredondado("Cadastrar", new Color(220, 220, 220), Color.BLACK);
         cadastrarBtn.setMaximumSize(new Dimension(230, 50));
         cadastrarBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -62,7 +91,7 @@ public class TelaCadastro extends JFrame {
         wrapper.add(painelCentral);
         add(wrapper, BorderLayout.CENTER);
 
-        // Rodapé com botão voltar
+        // Rodapé
         JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
         rodape.setBackground(new Color(18, 14, 129));
 
@@ -82,7 +111,7 @@ public class TelaCadastro extends JFrame {
     }
 
     private void estilizarCampoArredondado(JTextField campo) {
-        Dimension campoSize = new Dimension(600, 55); // ⬅️ novo tamanho
+        Dimension campoSize = new Dimension(600, 55);
 
         campo.setMaximumSize(campoSize);
         campo.setPreferredSize(campoSize);
@@ -133,8 +162,10 @@ public class TelaCadastro extends JFrame {
     private void cadastrarUsuario() {
         String email = emailField.getText();
         String senha = new String(senhaField.getPassword());
+        String nome = nomeField.getText();
+        String tipo = (String) tipoCombo.getSelectedItem();
 
-        if (email.isEmpty() || senha.isEmpty()) {
+        if (email.isEmpty() || senha.isEmpty() || nome.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Preencha todos os campos.");
             return;
         }
@@ -143,15 +174,19 @@ public class TelaCadastro extends JFrame {
             ConexaoBD conexaoBD = new ConexaoBD();
             Connection conn = conexaoBD.obterConexao();
 
-            String sql = "INSERT INTO usuarios (email, senha) VALUES (?, ?)";
+            String sql = "INSERT INTO usuarios (email, senha, nome, tipo) VALUES (?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, email);
             stmt.setString(2, senha);
+            stmt.setString(3, nome);
+            stmt.setString(4, tipo);
             stmt.executeUpdate();
 
             JOptionPane.showMessageDialog(this, "Usuário cadastrado com sucesso!");
             emailField.setText("");
             senhaField.setText("");
+            nomeField.setText("");
+            tipoCombo.setSelectedIndex(0);
 
             stmt.close();
             conn.close();

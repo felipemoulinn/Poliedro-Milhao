@@ -8,27 +8,27 @@ import java.sql.ResultSet;
 public class ConexaoBD {
     private String host = "localhost";
     private String port = "3306";
-    private String db = "quiz_educacional_db"; 
+    private String db = "quiz_educacional_db";
     private String user = "root";
-    private String password = "Felipe0069@"; 
-    
+    private String password = "imtdb";
+
     public Connection obterConexao() throws Exception {
         String url = String.format(
-            "jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC",
-            host, port, db
-        );
+                "jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC",
+                host, port, db);
         return DriverManager.getConnection(url, user, password);
     }
 
     /**
      * Verifica o login do usuário e retorna o tipo de usuário se válido.
+     * 
      * @return "admin", "professor", "aluno" ou null
      */
     public String verificarLogin(String email, String senha) {
         String sql = "SELECT tipo FROM usuarios WHERE email = ? AND senha = ?";
 
         try (Connection conexao = obterConexao();
-             PreparedStatement stmt = conexao.prepareStatement(sql)) {
+                PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, email);
             stmt.setString(2, senha); // ⚠️ Em produção, utilize hashing de senha (ex: BCrypt)
@@ -50,7 +50,7 @@ public class ConexaoBD {
         try {
             ConexaoBD fabricaDeConexoes = new ConexaoBD();
             Connection conexao = fabricaDeConexoes.obterConexao();
-            
+
             if (conexao != null && !conexao.isClosed()) {
                 System.out.println("✅ Conexão com o banco de dados estabelecida com sucesso!");
                 conexao.close();
@@ -64,7 +64,22 @@ public class ConexaoBD {
     }
 
     public int obterIdUsuario(String email) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'obterIdUsuario'");
+        String sql = "SELECT id FROM usuarios WHERE email = ?";
+
+        try (Connection conexao = obterConexao();
+                PreparedStatement stmt = conexao.prepareStatement(sql)) {
+
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao obter ID do usuário:");
+            e.printStackTrace();
+        }
+
+        return -1; // Retorna -1 se não encontrado ou erro
     }
 }
