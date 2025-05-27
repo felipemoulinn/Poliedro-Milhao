@@ -5,6 +5,7 @@ import java.sql.*;
 import javax.swing.*;
 
 public class TelaCadastro extends JFrame {
+
     private JTextField emailField;
     private JPasswordField senhaField;
 
@@ -13,12 +14,16 @@ public class TelaCadastro extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         getContentPane().setBackground(new Color(18, 14, 129));
-        setLayout(new GridBagLayout());
+        setLayout(new BorderLayout());
 
+        // Painel wrapper centralizado
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setBackground(new Color(18, 14, 129));
+
+        // Painel central com campos
         JPanel painelCentral = new JPanel();
         painelCentral.setBackground(new Color(18, 14, 129));
         painelCentral.setLayout(new BoxLayout(painelCentral, BoxLayout.Y_AXIS));
-        painelCentral.setPreferredSize(new Dimension(700, 550));
 
         JLabel titulo = new JLabel("CADASTRO");
         titulo.setFont(new Font("SansSerif", Font.BOLD, 42));
@@ -53,26 +58,40 @@ public class TelaCadastro extends JFrame {
         cadastrarBtn.setMaximumSize(new Dimension(230, 50));
         cadastrarBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         painelCentral.add(cadastrarBtn);
-        painelCentral.add(Box.createRigidArea(new Dimension(0, 30)));
 
-        JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        rodape.setBackground(new Color(10, 10, 80));
+        wrapper.add(painelCentral);
+        add(wrapper, BorderLayout.CENTER);
+
+        // Rodapé com botão voltar
+        JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
+        rodape.setBackground(new Color(18, 14, 129));
+
         JButton voltarBtn = criarBotaoArredondado("VOLTAR", new Color(255, 153, 0), Color.WHITE);
         voltarBtn.setPreferredSize(new Dimension(130, 45));
+        voltarBtn.addActionListener(e -> {
+            new TelaLogin().setVisible(true);
+            dispose();
+        });
+
         rodape.add(voltarBtn);
-        painelCentral.add(rodape);
+        add(rodape, BorderLayout.SOUTH);
 
         cadastrarBtn.addActionListener(e -> cadastrarUsuario());
 
-        add(painelCentral);
         setVisible(true);
     }
 
     private void estilizarCampoArredondado(JTextField campo) {
-        campo.setMaximumSize(new Dimension(480, 45));
-        campo.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        Dimension campoSize = new Dimension(600, 55); // ⬅️ novo tamanho
+
+        campo.setMaximumSize(campoSize);
+        campo.setPreferredSize(campoSize);
+        campo.setMinimumSize(campoSize);
+
+        campo.setFont(new Font("SansSerif", Font.PLAIN, 18));
         campo.setOpaque(false);
         campo.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+
         campo.setUI(new javax.swing.plaf.basic.BasicTextFieldUI() {
             @Override
             protected void paintSafely(Graphics g) {
@@ -121,28 +140,27 @@ public class TelaCadastro extends JFrame {
         }
 
         try {
-        // Usando a classe ConexaoBD que você já tem
-        ConexaoBD conexaoBD = new ConexaoBD();
-        Connection conn = conexaoBD.obterConexao();
+            ConexaoBD conexaoBD = new ConexaoBD();
+            Connection conn = conexaoBD.obterConexao();
 
-        String sql = "INSERT INTO usuarios (email, senha) VALUES (?, ?)";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setString(1, email);
-        stmt.setString(2, senha);
-        stmt.executeUpdate();
+            String sql = "INSERT INTO usuarios (email, senha) VALUES (?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, email);
+            stmt.setString(2, senha);
+            stmt.executeUpdate();
 
-        JOptionPane.showMessageDialog(this, "Usuário cadastrado com sucesso!");
-        emailField.setText("");
-        senhaField.setText("");
+            JOptionPane.showMessageDialog(this, "Usuário cadastrado com sucesso!");
+            emailField.setText("");
+            senhaField.setText("");
 
-        stmt.close();
-        conn.close();
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Erro ao cadastrar: " + ex.getMessage());
+            stmt.close();
+            conn.close();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Erro ao cadastrar: " + ex.getMessage());
+        }
     }
-}
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaCadastro());
+        SwingUtilities.invokeLater(TelaCadastro::new);
     }
 }

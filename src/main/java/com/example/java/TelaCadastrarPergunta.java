@@ -62,12 +62,13 @@ public class TelaCadastrarPergunta extends JFrame {
         setResizable(false);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(13, 11, 80));
+        mainPanel.setBackground(new Color(18, 14, 129)); // ✅ Azul claro padrão da tela
 
         // TOPO com ícones
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        topPanel.setBackground(new Color(18, 14, 129)); // ✅ Agora igual ao fundo principal
 
         ImageIcon iconePerfil = new ImageIcon(getClass().getClassLoader().getResource("perfil.png"));
         ImageIcon iconeConfig = new ImageIcon(getClass().getClassLoader().getResource("configuracoes.png"));
