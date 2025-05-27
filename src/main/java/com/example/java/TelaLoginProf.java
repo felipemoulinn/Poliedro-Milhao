@@ -1,104 +1,89 @@
 package com.example.java;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import javax.swing.*;
 
 public class TelaLoginProf extends JFrame {
+
     public TelaLoginProf() {
         setTitle("Poliedro Milhão - Professor");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
+        setResizable(true);
 
-        JPanel mainPanel = new JPanel(new GridBagLayout());
+        JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(new Color(13, 11, 80));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(15, 0, 15, 0);
+        // TOPO COM ÍCONES
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
 
-        // No construtor de TelaProf, modificar a criação dos botões:
-String[] botoes = { "JOGAR", "RANKING", "EDITAR", "VOLTAR" };
-for (String texto : botoes) {
-    JButton btn = createMenuButton(texto);
-    
-    if (texto.equals("JOGAR")) {
-        btn.addActionListener(e -> {
-            new TelaQuiz().setVisible(true);
-            dispose();
-        });
-    } else if (texto.equals("RANKING")) {
-        btn.addActionListener(e -> {
-            new RankingScreen().setVisible(true);
-            dispose();
-        });
-    } else if (texto.equals("EDITAR")) {
-        btn.addActionListener(e -> {
-            new TelaSom().setVisible(true);
-            // Não dispose() para manter a tela principal aberta
-        });
-    } else if (texto.equals("VOLTAR")) {
-        btn.addActionListener(e -> {
-            new TelaLogin().setVisible(true);
-            dispose();
-        });
-    }
-    
-    mainPanel.add(btn, gbc);
-}
+        ImageIcon iconePerfilOriginal = new ImageIcon(getClass().getClassLoader().getResource("perfil.png"));
+        ImageIcon iconeConfigOriginal = new ImageIcon(getClass().getClassLoader().getResource("configuracoes.png"));
+
+        Image imgPerfil = iconePerfilOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+        Image imgConfig = iconeConfigOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+
+        JButton btnConfig = new JButton(new ImageIcon(imgConfig));
+        configurarBotaoIcone(btnConfig);
+        aplicarHoverIconeSimples(btnConfig);
+        btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
+
+        JButton btnPerfil = new JButton(new ImageIcon(imgPerfil));
+        configurarBotaoIcone(btnPerfil);
+        aplicarHoverIconeSimples(btnPerfil);
+
+        topPanel.add(btnConfig, BorderLayout.WEST);
+        topPanel.add(btnPerfil, BorderLayout.EAST);
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+
+        // LOGO
+        ImageIcon logoOriginal = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
+        Image imgLogo = logoOriginal.getImage().getScaledInstance(260, -1, Image.SCALE_SMOOTH);
+        JLabel logoLabel = new JLabel(new ImageIcon(imgLogo));
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        logoLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
+        mainPanel.add(logoLabel, BorderLayout.CENTER);
+
+        // BOTÕES CENTRALIZADOS COM BOXLAYOUT
+        JPanel botoesPanel = new JPanel();
+        botoesPanel.setLayout(new BoxLayout(botoesPanel, BoxLayout.Y_AXIS));
+        botoesPanel.setBackground(new Color(13, 11, 80));
+
+        String[] botoes = { "JOGAR", "RANKING", "EDITAR" };
+        for (String texto : botoes) {
+            JButton btn = createMenuButton(texto);
+
+            switch (texto) {
+                case "JOGAR" -> btn.addActionListener(e -> {
+                    new TelaQuiz().setVisible(true);
+                    dispose();
+                });
+                case "RANKING" -> btn.addActionListener(e -> {
+                    new RankingScreen().setVisible(true);
+                    dispose();
+                });
+                case "EDITAR" -> btn.addActionListener(e -> {
+                    new TelaEditar().setVisible(true);
+                });
+            }
+
+            btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+            botoesPanel.add(btn);
+            botoesPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        }
+
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setBackground(new Color(13, 11, 80));
+        wrapper.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 0)); // padding inferior
+        wrapper.add(botoesPanel);
+
+        mainPanel.add(wrapper, BorderLayout.SOUTH);
 
         add(mainPanel);
         setVisible(true);
-    }
-
-    private void abrirConfiguracaoVolume() {
-        JFrame configFrame = new JFrame("Configuração de Volume");
-        configFrame.setSize(300, 200);
-        configFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        configFrame.setLocationRelativeTo(this);
-        configFrame.setResizable(false);
-        
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        
-        // Título
-        JLabel titulo = new JLabel("EDITAR", SwingConstants.CENTER);
-        titulo.setFont(new Font("Arial", Font.BOLD, 18));
-        mainPanel.add(titulo, BorderLayout.NORTH);
-        
-        // Controle de volume
-        JSlider volumeSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 50);
-        volumeSlider.setMajorTickSpacing(25);
-        volumeSlider.setMinorTickSpacing(5);
-        volumeSlider.setPaintTicks(true);
-        volumeSlider.setPaintLabels(true);
-        
-        JPanel volumePanel = new JPanel(new GridLayout(2, 1));
-        volumePanel.add(volumeSlider);
-        volumePanel.add(new JLabel("Volume: 50%", SwingConstants.CENTER));
-        mainPanel.add(volumePanel, BorderLayout.CENTER);
-        
-        // Botão voltar
-        JButton voltarButton = new JButton("VOLTAR");
-        voltarButton.setFont(new Font("Arial", Font.BOLD, 14));
-        voltarButton.addActionListener(e -> configFrame.dispose());
-        
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(voltarButton);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-        
-        configFrame.add(mainPanel);
-        configFrame.setVisible(true);
-        
-        // Atualiza o label do volume quando o slider é movido
-        volumeSlider.addChangeListener(e -> {
-            JLabel label = (JLabel)((JPanel)volumePanel).getComponent(1);
-            label.setText("Volume: " + volumeSlider.getValue() + "%");
-            // Aqui você pode adicionar o código para alterar o volume do jogo
-        });
     }
 
     private JButton createMenuButton(String text) {
@@ -118,14 +103,7 @@ for (String texto : botoes) {
                 int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
 
                 g2.setColor(Color.BLACK);
-                for (int i = -1; i <= 1; i++) {
-                    for (int j = -1; j <= 1; j++) {
-                        if (i != 0 || j != 0) {
-                            g2.drawString(getText(), x + i, y + j);
-                        }
-                    }
-                }
-
+                g2.drawString(getText(), x + 1, y + 1);
                 g2.setColor(getForeground());
                 g2.drawString(getText(), x, y);
                 g2.dispose();
@@ -141,32 +119,44 @@ for (String texto : botoes) {
             }
         };
 
-        button.setFont(new Font("Arial", Font.BOLD, 32));
+        button.setFont(new Font("Arial", Font.BOLD, 24));
         button.setBackground(corNormal);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(400, 85));
+        button.setPreferredSize(new Dimension(280, 65));
+        button.setMinimumSize(new Dimension(280, 65));
+        button.setMaximumSize(new Dimension(280, 65));
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
 
         button.addMouseListener(new MouseAdapter() {
-            @Override
             public void mouseEntered(MouseEvent e) {
                 button.setBackground(corHover);
-                button.repaint();
             }
 
-            @Override
             public void mouseExited(MouseEvent e) {
                 button.setBackground(corNormal);
-                button.repaint();
             }
         });
 
         return button;
     }
 
+    private void configurarBotaoIcone(JButton botao) {
+        botao.setBorderPainted(false);
+        botao.setContentAreaFilled(false);
+        botao.setFocusPainted(false);
+        botao.setOpaque(false);
+        botao.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }
+
+    private void aplicarHoverIconeSimples(JButton botao) {
+        botao.setRolloverEnabled(true);
+        botao.setBackground(new Color(255, 255, 255, 30));
+        botao.setContentAreaFilled(false);
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaLoginProf());
+        SwingUtilities.invokeLater(TelaLoginProf::new);
     }
 }

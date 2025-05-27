@@ -1,48 +1,101 @@
 package com.example.java;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 
 public class TelaEditar extends JFrame {
+
     public TelaEditar() {
         setTitle("Editar");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
-        setLocationRelativeTo(null);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setLocationRelativeTo(null);
         setResizable(true);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(new Color(13, 11, 80));
 
-        String textoParabens = "<html><div style='text-align: center;'> <br><br>EDITAR PERGUNTAS </div></html>";
-        JLabel parabensLabel = new JLabel(textoParabens);
-        parabensLabel.setFont(new Font("SansSerif", Font.BOLD, 50));
-        parabensLabel.setForeground(Color.WHITE);
-        parabensLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        mainPanel.add(parabensLabel, BorderLayout.NORTH);
+        // 🔝 ÍCONES TOPO
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(13, 11, 80));
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        ImageIcon iconePerfilOriginal = new ImageIcon(getClass().getClassLoader().getResource("perfil.png"));
+        ImageIcon iconeConfigOriginal = new ImageIcon(getClass().getClassLoader().getResource("configuracoes.png"));
 
-        String[] botoes = {"Adicionar perguntas", "Excluir perguntas"};
+        Image imgPerfil = iconePerfilOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+        Image imgConfig = iconeConfigOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+
+        JButton btnPerfil = new JButton(new ImageIcon(imgPerfil));
+        JButton btnConfig = new JButton(new ImageIcon(imgConfig));
+
+        configurarBotaoIcone(btnPerfil);
+        configurarBotaoIcone(btnConfig);
+        aplicarHoverIconeSimples(btnPerfil);
+        aplicarHoverIconeSimples(btnConfig);
+
+        btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
+
+        topPanel.add(btnConfig, BorderLayout.WEST);
+        topPanel.add(btnPerfil, BorderLayout.EAST);
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+
+        // 🧱 PAINEL CENTRAL COM TÍTULO + BOTÕES
+        JPanel centerPanel = new JPanel();
+        centerPanel.setBackground(new Color(13, 11, 80));
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+
+        JLabel tituloLabel = new JLabel("EDITAR PERGUNTAS");
+        tituloLabel.setFont(new Font("SansSerif", Font.BOLD, 48));
+        tituloLabel.setForeground(Color.WHITE);
+        tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        tituloLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 145, 0));
+        centerPanel.add(tituloLabel);
+
+        String[] botoes = { "Adicionar perguntas", "Excluir perguntas" };
         for (String texto : botoes) {
             JButton btn = createMenuButton(texto);
             btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-            buttonPanel.add(btn);
-            buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+            btn.setPreferredSize(new Dimension(300, 70));
+            btn.setMinimumSize(new Dimension(300, 70));
+            btn.setMaximumSize(new Dimension(300, 70));
+
+            if (texto.equals("Adicionar perguntas")) {
+                btn.addActionListener(e -> {
+                    new TelaCadastrarPergunta().setVisible(true);
+                    dispose();
+                });
+            } else if (texto.equals("Excluir perguntas")) {
+                btn.addActionListener(e -> {
+                    new TelaExcluir().setVisible(true);
+                    dispose();
+                });
+            }
+
+            centerPanel.add(btn);
+            centerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         }
 
-        JPanel centerPanel = new JPanel(new GridBagLayout());
-        centerPanel.setBackground(new Color(13, 11, 80));
-        centerPanel.add(buttonPanel);
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
+        JPanel centerWrapper = new JPanel(new GridBagLayout());
+        centerWrapper.setBackground(new Color(13, 11, 80));
+        centerWrapper.add(centerPanel);
+        mainPanel.add(centerWrapper, BorderLayout.CENTER);
 
-        JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        rodape.setBackground(new Color(10, 10, 80));
+        // ⬇ BOTÃO VOLTAR
+        JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
+        rodape.setBackground(new Color(13, 11, 80));
+
         JButton voltarBtn = createMenuButton("VOLTAR");
         voltarBtn.setPreferredSize(new Dimension(130, 45));
+
+        // ✅ Ação para retornar à TelaLoginProf
+        voltarBtn.addActionListener(e -> {
+            new TelaLoginProf().setVisible(true);
+            dispose();
+        });
+
         rodape.add(voltarBtn);
         mainPanel.add(rodape, BorderLayout.SOUTH);
 
@@ -50,6 +103,7 @@ public class TelaEditar extends JFrame {
         setVisible(true);
     }
 
+    // 🔘 BOTÃO ESTILIZADO
     private JButton createMenuButton(String text) {
         Color corNormal = new Color(195, 141, 41);
         Color corHover = new Color(255, 200, 70);
@@ -67,14 +121,7 @@ public class TelaEditar extends JFrame {
                 int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
 
                 g2.setColor(Color.BLACK);
-                for (int i = -1; i <= 1; i++) {
-                    for (int j = -1; j <= 1; j++) {
-                        if (i != 0 || j != 0) {
-                            g2.drawString(getText(), x + i, y + j);
-                        }
-                    }
-                }
-
+                g2.drawString(getText(), x + 1, y + 1);
                 g2.setColor(getForeground());
                 g2.drawString(getText(), x, y);
                 g2.dispose();
@@ -94,17 +141,15 @@ public class TelaEditar extends JFrame {
         button.setBackground(corNormal);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(300, 70));
-        button.setMinimumSize(new Dimension(250, 60));
-        button.setMaximumSize(new Dimension(350, 80));
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
 
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
                 button.setBackground(corHover);
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
+
+            public void mouseExited(MouseEvent e) {
                 button.setBackground(corNormal);
             }
         });
@@ -112,7 +157,20 @@ public class TelaEditar extends JFrame {
         return button;
     }
 
+    private void configurarBotaoIcone(JButton botao) {
+        botao.setBorderPainted(false);
+        botao.setContentAreaFilled(false);
+        botao.setFocusPainted(false);
+        botao.setOpaque(false);
+        botao.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }
+
+    private void aplicarHoverIconeSimples(JButton botao) {
+        botao.setRolloverEnabled(true);
+        botao.setContentAreaFilled(false);
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaEditar());
+        SwingUtilities.invokeLater(TelaEditar::new);
     }
 }

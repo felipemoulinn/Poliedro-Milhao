@@ -1,68 +1,89 @@
 package com.example.java;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 
 public class TelaDificuldade extends JFrame {
     public TelaDificuldade() {
         setTitle("Selecionar Dificuldade!");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600); // Tamanho padrão caso não maximize
+        setSize(800, 600);
         setLocationRelativeTo(null);
-        
-        // Configura para abrir maximizada
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-        
-        // Permite redimensionamento e minimização
         setResizable(true);
 
-        JPanel mainPanel = new JPanel(new GridBagLayout());
+        JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(new Color(13, 11, 80));
 
-        // Texto com HTML para melhor quebra de linha
-        String textoParabens = "<html><div style='text-align: center;'>DIFICULDADE</div></html>";
-        JLabel parabensLabel = new JLabel(textoParabens);
-        parabensLabel.setFont(new Font("SansSerif", Font.BOLD, 75));
-        parabensLabel.setForeground(Color.WHITE);
-        parabensLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.insets = new Insets(0, 20, 40, 20); // Margens laterais
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(parabensLabel, gbc);
+        // 🔝 TOPO: ÍCONES
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(13, 11, 80));
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        ImageIcon iconePerfilOriginal = new ImageIcon(getClass().getClassLoader().getResource("perfil.png"));
+        ImageIcon iconeConfigOriginal = new ImageIcon(getClass().getClassLoader().getResource("configuracoes.png"));
 
-        String[] botoes = {"DIFICIL", "MEDIO", "FACIL"};
+        Image imgPerfil = iconePerfilOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+        Image imgConfig = iconeConfigOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+
+        JButton btnConfig = new JButton(new ImageIcon(imgConfig));
+        JButton btnPerfil = new JButton(new ImageIcon(imgPerfil));
+
+        configurarBotaoIcone(btnConfig);
+        configurarBotaoIcone(btnPerfil);
+
+        // ✅ Torna o botão de configuração funcional (abre TelaSom)
+        btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
+
+        topPanel.add(btnConfig, BorderLayout.WEST);
+        topPanel.add(btnPerfil, BorderLayout.EAST);
+
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+
+        // 🧱 CENTRO COM TÍTULO + BOTÕES
+        JPanel centroPanel = new JPanel();
+        centroPanel.setBackground(new Color(13, 11, 80));
+        centroPanel.setLayout(new BoxLayout(centroPanel, BoxLayout.Y_AXIS));
+
+        JLabel tituloLabel = new JLabel("DIFICULDADE");
+        tituloLabel.setFont(new Font("SansSerif", Font.BOLD, 50));
+        tituloLabel.setForeground(Color.WHITE);
+        tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        tituloLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 140, 0)); // espaçamento inferior
+
+        centroPanel.add(tituloLabel);
+
+        String[] botoes = { "FÁCIL", "MÉDIO", "DIFÍCIL" };
         for (String texto : botoes) {
             JButton btn = createMenuButton(texto);
             btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-            buttonPanel.add(btn);
-            buttonPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Espaço maior entre botões
+            centroPanel.add(btn);
+            centroPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Espaço entre botões
         }
 
-        gbc.gridy = 1;
-        gbc.weighty = 1.5;
-        gbc.insets = new Insets(0, 20, 20, 20);
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        mainPanel.add(buttonPanel, gbc);
+        // ⬇ Centralização vertical
+        JPanel centroWrapper = new JPanel(new GridBagLayout());
+        centroWrapper.setBackground(new Color(13, 11, 80));
+        centroWrapper.add(centroPanel);
 
+        mainPanel.add(centroWrapper, BorderLayout.CENTER);
         add(mainPanel);
         setVisible(true);
     }
 
-    private JButton createMenuButton(String text) {
+    private void configurarBotaoIcone(JButton botao) {
+        botao.setContentAreaFilled(false);
+        botao.setBorderPainted(false);
+        botao.setFocusPainted(false);
+        botao.setOpaque(false);
+        botao.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }
+
+    private JButton createMenuButton(String texto) {
         Color corNormal = new Color(195, 141, 41);
         Color corHover = new Color(255, 200, 70);
 
-        JButton button = new JButton(text) {
+        JButton botao = new JButton(texto) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -75,14 +96,7 @@ public class TelaDificuldade extends JFrame {
                 int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
 
                 g2.setColor(Color.BLACK);
-                for (int i = -1; i <= 1; i++) {
-                    for (int j = -1; j <= 1; j++) {
-                        if (i != 0 || j != 0) {
-                            g2.drawString(getText(), x + i, y + j);
-                        }
-                    }
-                }
-
+                g2.drawString(getText(), x + 1, y + 1);
                 g2.setColor(getForeground());
                 g2.drawString(getText(), x, y);
                 g2.dispose();
@@ -98,32 +112,30 @@ public class TelaDificuldade extends JFrame {
             }
         };
 
-        button.setFont(new Font("Arial", Font.BOLD, 32));
-        button.setBackground(corNormal);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        
-        // Tamanhos ajustáveis
-        button.setPreferredSize(new Dimension(350, 80));
-        button.setMinimumSize(new Dimension(250, 60));
-        button.setMaximumSize(new Dimension(350, 80));
-        
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
+        botao.setFont(new Font("Arial", Font.BOLD, 26));
+        botao.setBackground(corNormal);
+        botao.setForeground(Color.WHITE);
+        botao.setFocusPainted(false);
+        botao.setPreferredSize(new Dimension(300, 65));
+        botao.setMinimumSize(new Dimension(300, 65));
+        botao.setMaximumSize(new Dimension(300, 65));
+        botao.setContentAreaFilled(false);
+        botao.setBorderPainted(false);
 
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(corHover);
+        botao.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent evt) {
+                botao.setBackground(corHover);
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(corNormal);
+
+            public void mouseExited(MouseEvent evt) {
+                botao.setBackground(corNormal);
             }
         });
 
-        return button;
+        return botao;
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaDificuldade());
+        SwingUtilities.invokeLater(TelaDificuldade::new);
     }
 }

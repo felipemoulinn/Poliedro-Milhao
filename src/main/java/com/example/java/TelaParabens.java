@@ -1,63 +1,92 @@
 package com.example.java;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 
 public class TelaParabens extends JFrame {
+
     public TelaParabens() {
         setTitle("Parabéns!");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600); // Tamanho padrão caso não maximize
-        setLocationRelativeTo(null);
-        
-        // Configura para abrir maximizada
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-        
-        // Permite redimensionamento e minimização
+        setLocationRelativeTo(null);
         setResizable(true);
 
-        JPanel mainPanel = new JPanel(new GridBagLayout());
+        JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(new Color(13, 11, 80));
 
-        // Texto com HTML para melhor quebra de linha
-        String textoParabens = "<html><div style='text-align: center;'><div> - <div><div>Parabéns!<div> Você acertou 10 de 12 perguntas e faturou a bagatela de R$ 1.000 policoins!</div></html>";
-        JLabel parabensLabel = new JLabel(textoParabens);
-        parabensLabel.setFont(new Font("SansSerif", Font.BOLD, 32));
-        parabensLabel.setForeground(Color.WHITE);
-        parabensLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.insets = new Insets(0, 20, 40, 20); // Margens laterais
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(parabensLabel, gbc);
+        // 🔝 TOPO COM ÍCONES
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        ImageIcon iconePerfilOriginal = new ImageIcon(getClass().getClassLoader().getResource("perfil.png"));
+        ImageIcon iconeConfigOriginal = new ImageIcon(getClass().getClassLoader().getResource("configuracoes.png"));
+
+        Image imgPerfil = iconePerfilOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+        Image imgConfig = iconeConfigOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+
+        JButton btnConfig = new JButton(new ImageIcon(imgConfig));
+        JButton btnPerfil = new JButton(new ImageIcon(imgPerfil));
+
+        configurarBotaoIcone(btnConfig);
+        configurarBotaoIcone(btnPerfil);
+        aplicarHoverIconeSimples(btnConfig);
+        aplicarHoverIconeSimples(btnPerfil);
+
+        // ✅ Conectar botão de configuração à TelaSom
+        btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
+
+        topPanel.add(btnConfig, BorderLayout.WEST);
+        topPanel.add(btnPerfil, BorderLayout.EAST);
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+
+        // 🎯 CENTRO
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setBackground(new Color(13, 11, 80));
+
+        ImageIcon logoOriginal = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
+        Image imgLogo = logoOriginal.getImage().getScaledInstance(300, -1, Image.SCALE_SMOOTH);
+        JLabel logoLabel = new JLabel(new ImageIcon(imgLogo));
+        logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        logoLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+
+        JLabel textoLabel = new JLabel(
+            "<html><div style='text-align: center;'>"
+            + "<span style='font-size:24px; color:white;'>Parabéns! você acertou 10 de 12 perguntas<br>"
+            + "e faturou a bagatela de R$ 1.000 policoins!</span>"
+            + "</div></html>"
+        );
+        textoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        textoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        textoLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(13, 11, 80));
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.setBackground(new Color(13, 11, 80));
 
-        String[] botoes = {"Menu", "Ranking"};
+        String[] botoes = { "RANKING", "MENU" };
         for (String texto : botoes) {
             JButton btn = createMenuButton(texto);
             btn.setAlignmentX(Component.CENTER_ALIGNMENT);
             buttonPanel.add(btn);
-            buttonPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Espaço maior entre botões
+            buttonPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         }
 
-        gbc.gridy = 1;
-        gbc.weighty = 1.5;
-        gbc.insets = new Insets(0, 20, 20, 20);
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        mainPanel.add(buttonPanel, gbc);
+        centerPanel.add(Box.createVerticalGlue());
+        centerPanel.add(logoLabel);
+        centerPanel.add(textoLabel);
+        centerPanel.add(buttonPanel);
+        centerPanel.add(Box.createVerticalGlue());
 
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
         add(mainPanel);
         setVisible(true);
     }
 
+    // 🔘 BOTÃO ESTILIZADO COM HOVER
     private JButton createMenuButton(String text) {
         Color corNormal = new Color(195, 141, 41);
         Color corHover = new Color(255, 200, 70);
@@ -75,14 +104,7 @@ public class TelaParabens extends JFrame {
                 int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
 
                 g2.setColor(Color.BLACK);
-                for (int i = -1; i <= 1; i++) {
-                    for (int j = -1; j <= 1; j++) {
-                        if (i != 0 || j != 0) {
-                            g2.drawString(getText(), x + i, y + j);
-                        }
-                    }
-                }
-
+                g2.drawString(getText(), x + 1, y + 1);
                 g2.setColor(getForeground());
                 g2.drawString(getText(), x, y);
                 g2.dispose();
@@ -92,30 +114,29 @@ public class TelaParabens extends JFrame {
             protected void paintBorder(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(corNormal);
+                g2.setColor(new Color(195, 141, 41));
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 40, 40);
                 g2.dispose();
             }
         };
 
-        button.setFont(new Font("Arial", Font.BOLD, 25));
-        button.setBackground(corNormal);
+        button.setFont(new Font("Arial", Font.BOLD, 24));
+        button.setBackground(new Color(195, 141, 41));
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        
-        // Tamanhos ajustáveis
-        button.setPreferredSize(new Dimension(300, 70));
-        button.setMinimumSize(new Dimension(250, 60));
-        button.setMaximumSize(new Dimension(350, 80));
-        
+        Dimension tamanho = new Dimension(280, 65);
+        button.setPreferredSize(tamanho);
+        button.setMinimumSize(tamanho);
+        button.setMaximumSize(tamanho);
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
 
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
                 button.setBackground(corHover);
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
+
+            public void mouseExited(MouseEvent e) {
                 button.setBackground(corNormal);
             }
         });
@@ -123,7 +144,22 @@ public class TelaParabens extends JFrame {
         return button;
     }
 
+    // 🧩 CONFIG DOS ÍCONES
+    private void configurarBotaoIcone(JButton botao) {
+        botao.setBorderPainted(false);
+        botao.setContentAreaFilled(false);
+        botao.setFocusPainted(false);
+        botao.setOpaque(false);
+        botao.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }
+
+    private void aplicarHoverIconeSimples(JButton botao) {
+        botao.setRolloverEnabled(true);
+        botao.setBackground(new Color(255, 255, 255, 30));
+        botao.setContentAreaFilled(false);
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaParabens());
+        SwingUtilities.invokeLater(TelaParabens::new);
     }
 }

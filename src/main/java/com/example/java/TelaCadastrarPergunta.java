@@ -3,7 +3,7 @@ package com.example.java;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import java.awt.*;
-
+import java.awt.event.*;
 
 // Campo de texto arredondado
 class CampoArredondado extends JTextField {
@@ -21,36 +21,11 @@ class CampoArredondado extends JTextField {
         g2.setColor(Color.WHITE);
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
         super.paintComponent(g);
+        g2.dispose();
     }
 
     @Override
-    protected void paintBorder(Graphics g) {
-        // Sem borda
-    }
-}
-
-// Botão arredondado
-class BotaoArredondado extends JButton {
-    public BotaoArredondado(String texto) {
-        super(texto);
-        setFocusPainted(false);
-        setContentAreaFilled(false);
-        setForeground(Color.WHITE);
-        setFont(new Font("Arial", Font.BOLD, 16));
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setColor(new Color(219, 156, 38)); // #DB9C26
-        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 40, 40);
-        super.paintComponent(g);
-    }
-
-    @Override
-    protected void paintBorder(Graphics g) {
-        // Sem borda
-    }
+    protected void paintBorder(Graphics g) {}
 }
 
 // ComboBox arredondado
@@ -71,15 +46,13 @@ class ComboBoxArredondado<E> extends JComboBox<E> {
         g2.setColor(Color.WHITE);
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
         super.paintComponent(g2);
+        g2.dispose();
     }
 
     @Override
-    protected void paintBorder(Graphics g) {
-        // sem borda
-    }
+    protected void paintBorder(Graphics g) {}
 }
 
-// Tela principal
 public class TelaCadastrarPergunta extends JFrame {
 
     public TelaCadastrarPergunta() {
@@ -88,77 +61,174 @@ public class TelaCadastrarPergunta extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setResizable(false);
 
-        JPanel painelPrincipal = new JPanel();
-        painelPrincipal.setBackground(new Color(13, 11, 80)); // Azul escuro
-        painelPrincipal.setLayout(new GridBagLayout());
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(new Color(13, 11, 80));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(20, 20, 20, 20);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        // TOPO com ícones
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Label da matéria
-        JLabel lblMateria = new JLabel("Selecione a matéria:");
-        lblMateria.setForeground(Color.WHITE);
-        lblMateria.setFont(new Font("Arial", Font.BOLD, 18));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        painelPrincipal.add(lblMateria, gbc);
+        ImageIcon iconePerfil = new ImageIcon(getClass().getClassLoader().getResource("perfil.png"));
+        ImageIcon iconeConfig = new ImageIcon(getClass().getClassLoader().getResource("configuracoes.png"));
 
-        // ComboBox arredondado
-        String[] materias = {"Biologia", "Matemática", "Português", "História", "Geografia"};
-        ComboBoxArredondado<String> comboMateria = new ComboBoxArredondado<>(materias);
-        comboMateria.setPreferredSize(new Dimension(300, 45));
-        gbc.gridy = 1;
-        painelPrincipal.add(comboMateria, gbc);
+        Image perfilImg = iconePerfil.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+        Image configImg = iconeConfig.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
 
-        // Label da pergunta
-        JLabel lblPergunta = new JLabel("Insira a pergunta aqui:");
-        lblPergunta.setForeground(Color.WHITE);
-        lblPergunta.setFont(new Font("Arial", Font.BOLD, 18));
-        gbc.gridy = 2;
-        painelPrincipal.add(lblPergunta, gbc);
+        JButton btnPerfil = new JButton(new ImageIcon(perfilImg));
+        JButton btnConfig = new JButton(new ImageIcon(configImg));
 
-        // Campo de pergunta
+        configurarBotaoIcone(btnPerfil);
+        configurarBotaoIcone(btnConfig);
+        aplicarHoverIconeSimples(btnPerfil);
+        aplicarHoverIconeSimples(btnConfig);
+
+        btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
+
+        topPanel.add(btnConfig, BorderLayout.WEST);
+        topPanel.add(btnPerfil, BorderLayout.EAST);
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+
+        // CENTRO
+        JPanel centroWrapper = new JPanel(new GridBagLayout());
+        centroWrapper.setBackground(new Color(13, 11, 80));
+
+        JPanel conteudo = new JPanel();
+        conteudo.setLayout(new BoxLayout(conteudo, BoxLayout.Y_AXIS));
+        conteudo.setBackground(new Color(13, 11, 80));
+
+        JLabel lblMateria = criarLabel("Selecione a matéria:");
+        conteudo.add(lblMateria);
+        conteudo.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        ComboBoxArredondado<String> comboMateria = new ComboBoxArredondado<>(
+            new String[]{"Biologia", "Matemática", "Português", "História", "Geografia"});
+        comboMateria.setMaximumSize(new Dimension(400, 45));
+        comboMateria.setPreferredSize(new Dimension(400, 45));
+        comboMateria.setAlignmentX(Component.CENTER_ALIGNMENT);
+        conteudo.add(comboMateria);
+        conteudo.add(Box.createRigidArea(new Dimension(0, 25)));
+
+        JLabel lblPergunta = criarLabel("Insira a pergunta aqui:");
+        conteudo.add(lblPergunta);
+        conteudo.add(Box.createRigidArea(new Dimension(0, 10)));
+
         CampoArredondado campoPergunta = new CampoArredondado(30);
-        campoPergunta.setPreferredSize(new Dimension(500, 50));
-        gbc.gridy = 3;
-        painelPrincipal.add(campoPergunta, gbc);
+        campoPergunta.setMaximumSize(new Dimension(500, 50));
+        campoPergunta.setAlignmentX(Component.CENTER_ALIGNMENT);
+        conteudo.add(campoPergunta);
+        conteudo.add(Box.createRigidArea(new Dimension(0, 25)));
 
-        // Label da resposta
-        JLabel lblResposta = new JLabel("Insira a resposta aqui:");
-        lblResposta.setForeground(Color.WHITE);
-        lblResposta.setFont(new Font("Arial", Font.BOLD, 18));
-        gbc.gridy = 4;
-        painelPrincipal.add(lblResposta, gbc);
+        JLabel lblResposta = criarLabel("Insira a resposta aqui:");
+        conteudo.add(lblResposta);
+        conteudo.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        // Campo de resposta
         CampoArredondado campoResposta = new CampoArredondado(30);
-        campoResposta.setPreferredSize(new Dimension(500, 50));
-        gbc.gridy = 5;
-        painelPrincipal.add(campoResposta, gbc);
+        campoResposta.setMaximumSize(new Dimension(500, 50));
+        campoResposta.setAlignmentX(Component.CENTER_ALIGNMENT);
+        conteudo.add(campoResposta);
+        conteudo.add(Box.createRigidArea(new Dimension(0, 35)));
 
-        // Botão ADICIONAR
-        BotaoArredondado btnAdicionar = new BotaoArredondado("ADICIONAR");
-        btnAdicionar.setPreferredSize(new Dimension(160, 45));
-        gbc.gridy = 6;
-        gbc.gridx = 0;
-        gbc.gridwidth = 1;
-        painelPrincipal.add(btnAdicionar, gbc);
+        JButton btnAdicionar = createMenuButton("ADICIONAR");
+        btnAdicionar.setPreferredSize(new Dimension(300, 70));
+        btnAdicionar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        conteudo.add(btnAdicionar);
 
-        // Botão VOLTAR
-        BotaoArredondado btnVoltar = new BotaoArredondado("VOLTAR");
-        btnVoltar.setPreferredSize(new Dimension(160, 45));
-        gbc.gridx = 1;
-        painelPrincipal.add(btnVoltar, gbc);
+        centroWrapper.add(conteudo);
+        mainPanel.add(centroWrapper, BorderLayout.CENTER);
 
-        // Adiciona o painel
-        add(painelPrincipal);
+        // Rodapé
+        JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
+        rodape.setBackground(new Color(13, 11, 80));
+
+        JButton btnVoltar = createMenuButton("VOLTAR");
+        btnVoltar.setPreferredSize(new Dimension(130, 45));
+        btnVoltar.addActionListener(e -> {
+            new TelaEditar().setVisible(true);
+            dispose();
+        });
+        rodape.add(btnVoltar);
+
+        mainPanel.add(rodape, BorderLayout.SOUTH);
+        add(mainPanel);
         setVisible(true);
+    }
+
+    private JLabel criarLabel(String texto) {
+        JLabel label = new JLabel(texto);
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("Arial", Font.BOLD, 18));
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        return label;
+    }
+
+    private JButton createMenuButton(String text) {
+        Color corNormal = new Color(195, 141, 41);
+        Color corHover = new Color(255, 200, 70);
+
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 40, 40);
+
+                FontMetrics fm = g2.getFontMetrics();
+                int x = (getWidth() - fm.stringWidth(getText())) / 2;
+                int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
+
+                g2.setColor(Color.BLACK);
+                g2.drawString(getText(), x + 1, y + 1);
+                g2.setColor(getForeground());
+                g2.drawString(getText(), x, y);
+                g2.dispose();
+            }
+
+            @Override
+            protected void paintBorder(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(corNormal);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 40, 40);
+                g2.dispose();
+            }
+        };
+
+        button.setFont(new Font("Arial", Font.BOLD, 25));
+        button.setBackground(corNormal);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(corHover);
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(corNormal);
+            }
+        });
+
+        return button;
+    }
+
+    private void configurarBotaoIcone(JButton botao) {
+        botao.setBorderPainted(false);
+        botao.setContentAreaFilled(false);
+        botao.setFocusPainted(false);
+        botao.setOpaque(false);
+        botao.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }
+
+    private void aplicarHoverIconeSimples(JButton botao) {
+        botao.setRolloverEnabled(true);
+        botao.setContentAreaFilled(false);
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(TelaCadastrarPergunta::new);
     }
 }
-
