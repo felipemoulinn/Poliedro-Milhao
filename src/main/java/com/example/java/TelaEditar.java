@@ -14,7 +14,7 @@ public class TelaEditar extends JFrame {
         setResizable(true);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(13, 11, 80));
+        mainPanel.setBackground(new Color(18, 14, 129));
 
         // 🔝 ÍCONES TOPO
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -43,7 +43,7 @@ public class TelaEditar extends JFrame {
 
         // 🧱 PAINEL CENTRAL COM TÍTULO + BOTÕES
         JPanel centerPanel = new JPanel();
-        centerPanel.setBackground(new Color(13, 11, 80));
+        centerPanel.setBackground(new Color(18, 14, 129));
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
 
         JLabel tituloLabel = new JLabel("EDITAR PERGUNTAS");
@@ -79,13 +79,13 @@ public class TelaEditar extends JFrame {
         }
 
         JPanel centerWrapper = new JPanel(new GridBagLayout());
-        centerWrapper.setBackground(new Color(13, 11, 80));
+        centerWrapper.setBackground(new Color(18, 14, 129));
         centerWrapper.add(centerPanel);
         mainPanel.add(centerWrapper, BorderLayout.CENTER);
 
         // ⬇ BOTÃO VOLTAR
         JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
-        rodape.setBackground(new Color(13, 11, 80));
+        rodape.setBackground(new Color(18, 14, 129));
 
         JButton voltarBtn = createMenuButton("VOLTAR");
         voltarBtn.setPreferredSize(new Dimension(130, 45));

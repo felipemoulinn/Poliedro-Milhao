@@ -14,7 +14,7 @@ public class TelaAluno extends JFrame {
         setResizable(true);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(13, 11, 80));
+        mainPanel.setBackground(new Color(18, 14, 129));
 
         // TOPO COM ÍCONES
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -43,7 +43,7 @@ public class TelaAluno extends JFrame {
         // CENTRO COM LOGO E BOTÃO
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-        centerPanel.setBackground(new Color(13, 11, 80));
+        centerPanel.setBackground(new Color(18, 14, 129));
 
         // Logo
         ImageIcon logoIcon = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));

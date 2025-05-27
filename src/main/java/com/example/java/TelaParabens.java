@@ -14,7 +14,7 @@ public class TelaParabens extends JFrame {
         setResizable(true);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(13, 11, 80));
+        mainPanel.setBackground(new Color(18, 14, 129));
 
         // 🔝 TOPO COM ÍCONES
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -45,7 +45,7 @@ public class TelaParabens extends JFrame {
         // 🎯 CENTRO
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-        centerPanel.setBackground(new Color(13, 11, 80));
+        centerPanel.setBackground(new Color(18, 14, 129));
 
         ImageIcon logoOriginal = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
         Image imgLogo = logoOriginal.getImage().getScaledInstance(300, -1, Image.SCALE_SMOOTH);
@@ -65,7 +65,7 @@ public class TelaParabens extends JFrame {
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-        buttonPanel.setBackground(new Color(13, 11, 80));
+        buttonPanel.setBackground(new Color(18, 14, 129));
 
         String[] botoes = { "RANKING", "MENU" };
         for (String texto : botoes) {

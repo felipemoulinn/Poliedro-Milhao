@@ -14,7 +14,7 @@ public class TelaLoginProf extends JFrame {
         setResizable(true);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(13, 11, 80));
+        mainPanel.setBackground(new Color(18, 14, 129));
 
         // TOPO COM ÍCONES
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -50,7 +50,7 @@ public class TelaLoginProf extends JFrame {
         // BOTÕES CENTRALIZADOS COM BOXLAYOUT
         JPanel botoesPanel = new JPanel();
         botoesPanel.setLayout(new BoxLayout(botoesPanel, BoxLayout.Y_AXIS));
-        botoesPanel.setBackground(new Color(13, 11, 80));
+        botoesPanel.setBackground(new Color(18, 14, 129));
 
         String[] botoes = { "JOGAR", "RANKING", "EDITAR" };
         for (String texto : botoes) {
@@ -77,7 +77,7 @@ public class TelaLoginProf extends JFrame {
         }
 
         JPanel wrapper = new JPanel(new GridBagLayout());
-        wrapper.setBackground(new Color(13, 11, 80));
+        wrapper.setBackground(new Color(18, 14, 129));
         wrapper.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 0)); // padding inferior
         wrapper.add(botoesPanel);
 

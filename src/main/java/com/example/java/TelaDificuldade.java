@@ -18,7 +18,7 @@ public class TelaDificuldade extends JFrame {
         setResizable(true);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(13, 11, 80));
+        mainPanel.setBackground(new Color(18, 14, 129));
 
         // TOPO
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -44,7 +44,7 @@ public class TelaDificuldade extends JFrame {
 
         // CENTRO
         JPanel centroPanel = new JPanel();
-        centroPanel.setBackground(new Color(13, 11, 80));
+        centroPanel.setBackground(new Color(18, 14, 129));
         centroPanel.setLayout(new BoxLayout(centroPanel, BoxLayout.Y_AXIS));
 
         JLabel tituloLabel = new JLabel("DIFICULDADE");
@@ -67,13 +67,13 @@ public class TelaDificuldade extends JFrame {
         }
 
         JPanel centroWrapper = new JPanel(new GridBagLayout());
-        centroWrapper.setBackground(new Color(13, 11, 80));
+        centroWrapper.setBackground(new Color(18, 14, 129));
         centroWrapper.add(centroPanel);
         mainPanel.add(centroWrapper, BorderLayout.CENTER);
 
         // RODAPÉ COM BOTÃO VOLTAR
         JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        rodape.setBackground(new Color(13, 11, 80));
+        rodape.setBackground(new Color(18, 14, 129));
 
         JButton btnVoltar = createMenuButton("VOLTAR");
         btnVoltar.setPreferredSize(new Dimension(150, 50));

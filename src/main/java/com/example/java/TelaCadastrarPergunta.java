@@ -91,11 +91,11 @@ public class TelaCadastrarPergunta extends JFrame {
 
         // CENTRO
         JPanel centroWrapper = new JPanel(new GridBagLayout());
-        centroWrapper.setBackground(new Color(13, 11, 80));
+        centroWrapper.setBackground(new Color(18, 14, 129));
 
         JPanel conteudo = new JPanel();
         conteudo.setLayout(new BoxLayout(conteudo, BoxLayout.Y_AXIS));
-        conteudo.setBackground(new Color(13, 11, 80));
+        conteudo.setBackground(new Color(18, 14, 129));
 
         JLabel lblMateria = criarLabel("Selecione a matéria:");
         conteudo.add(lblMateria);
@@ -139,7 +139,7 @@ public class TelaCadastrarPergunta extends JFrame {
 
         // Rodapé
         JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
-        rodape.setBackground(new Color(13, 11, 80));
+        rodape.setBackground(new Color(18, 14, 129));
 
         JButton btnVoltar = createMenuButton("VOLTAR");
         btnVoltar.setPreferredSize(new Dimension(130, 45));

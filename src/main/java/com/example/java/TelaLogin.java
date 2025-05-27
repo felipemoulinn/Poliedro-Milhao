@@ -13,17 +13,17 @@ public class TelaLogin extends JFrame {
     public TelaLogin() {
         setTitle("Show do Milhão - Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        getContentPane().setBackground(new Color(13, 11, 80));
+        getContentPane().setBackground(new Color(18, 14, 129));
         setSize(1000, 800);
         setMinimumSize(new Dimension(800, 600));
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBackground(new Color(13, 11, 80));
+        mainPanel.setBackground(new Color(18, 14, 129));
         mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-        centerPanel.setBackground(new Color(13, 11, 80));
+        centerPanel.setBackground(new Color(18, 14, 129));
         centerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel logoLabel = new JLabel();

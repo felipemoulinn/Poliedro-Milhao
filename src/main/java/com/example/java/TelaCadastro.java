@@ -12,11 +12,11 @@ public class TelaCadastro extends JFrame {
         setTitle("Cadastro");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        getContentPane().setBackground(new Color(10, 10, 80));
+        getContentPane().setBackground(new Color(18, 14, 129));
         setLayout(new GridBagLayout());
 
         JPanel painelCentral = new JPanel();
-        painelCentral.setBackground(new Color(10, 10, 80));
+        painelCentral.setBackground(new Color(18, 14, 129));
         painelCentral.setLayout(new BoxLayout(painelCentral, BoxLayout.Y_AXIS));
         painelCentral.setPreferredSize(new Dimension(700, 550));
 
