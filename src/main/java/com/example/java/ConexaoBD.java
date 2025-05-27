@@ -8,53 +8,54 @@ import java.sql.ResultSet;
 public class ConexaoBD {
     private String host = "localhost";
     private String port = "3306";
-    private String db = "quiz_educacional_db"; // Nome modificado para refletir o propósito
+    private String db = "quiz_educacional_db"; 
     private String user = "root";
-    private String password = "imtdb"; // imtdb nas máquinas da Mauá
+    private String password = "imtdb"; 
     
     public Connection obterConexao() throws Exception {
-        // Registrar o driver explicitamente
-        //Class.forName("com.mysql.cj.jdbc.Driver");
-        
         String url = String.format(
             "jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC",
             host, port, db
         );
-        
         return DriverManager.getConnection(url, user, password);
     }
-    
-    // Adicione este método à classe ConexaoBD
-    public boolean verificarLogin(String email, String senha) {
-        String sql = "SELECT id FROM usuarios WHERE email = ? AND senha = ?";
+
+    /**
+     * Verifica o login do usuário e retorna o tipo de usuário se válido.
+     * @return "admin", "professor", "aluno" ou null
+     */
+    public String verificarLogin(String email, String senha) {
+        String sql = "SELECT tipo FROM usuarios WHERE email = ? AND senha = ?";
 
         try (Connection conexao = obterConexao();
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, email);
-            stmt.setString(2, senha); // Na prática, você deve usar hash da senha
+            stmt.setString(2, senha); // ⚠️ Em produção, utilize hashing de senha (ex: BCrypt)
 
             try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next(); // Retorna true se encontrou um usuário com essas credenciais
+                if (rs.next()) {
+                    return rs.getString("tipo");
+                }
             }
         } catch (Exception e) {
             System.err.println("Erro ao verificar login:");
             e.printStackTrace();
-            return false;
         }
+
+        return null; // Login inválido
     }
 
     public static void main(String[] args) {
         try {
-            // Teste de conexão
             ConexaoBD fabricaDeConexoes = new ConexaoBD();
             Connection conexao = fabricaDeConexoes.obterConexao();
             
-            if(conexao != null && !conexao.isClosed()){
-                System.out.println("Conexão com o banco de dados estabelecida com sucesso!");
+            if (conexao != null && !conexao.isClosed()) {
+                System.out.println("✅ Conexão com o banco de dados estabelecida com sucesso!");
                 conexao.close();
             } else {
-                System.out.println("Falha ao conectar ao banco de dados.");
+                System.out.println("❌ Falha ao conectar ao banco de dados.");
             }
         } catch (Exception e) {
             System.err.println("Erro ao conectar ao banco de dados:");
@@ -62,4 +63,3 @@ public class ConexaoBD {
         }
     }
 }
-

@@ -1,13 +1,13 @@
 package com.example.java;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 
-public class TelaAdm extends JFrame {
+public class TelaAluno extends JFrame {
 
-    public TelaAdm() {
-        setTitle("Poliedro Milhão - Administrador");
+    public TelaAluno() {
+        setTitle("Poliedro Milhão - Aluno");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
@@ -20,70 +20,56 @@ public class TelaAdm extends JFrame {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
 
-        ImageIcon iconePerfilOriginal = new ImageIcon(getClass().getClassLoader().getResource("perfil.png"));
-        ImageIcon iconeConfigOriginal = new ImageIcon(getClass().getClassLoader().getResource("configuracoes.png"));
+        ImageIcon iconePerfil = new ImageIcon(getClass().getClassLoader().getResource("perfil.png"));
+        ImageIcon iconeConfig = new ImageIcon(getClass().getClassLoader().getResource("configuracoes.png"));
 
-        Image imgPerfil = iconePerfilOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-        Image imgConfig = iconeConfigOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-
-        JButton btnConfig = new JButton(new ImageIcon(imgConfig));
-        configurarBotaoIcone(btnConfig);
-        aplicarHoverIconeSimples(btnConfig);
-        btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
+        Image imgPerfil = iconePerfil.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+        Image imgConfig = iconeConfig.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
 
         JButton btnPerfil = new JButton(new ImageIcon(imgPerfil));
+        JButton btnConfig = new JButton(new ImageIcon(imgConfig));
+
         configurarBotaoIcone(btnPerfil);
+        configurarBotaoIcone(btnConfig);
         aplicarHoverIconeSimples(btnPerfil);
+        aplicarHoverIconeSimples(btnConfig);
+
+        btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
 
         topPanel.add(btnConfig, BorderLayout.WEST);
         topPanel.add(btnPerfil, BorderLayout.EAST);
         mainPanel.add(topPanel, BorderLayout.NORTH);
 
-        // LOGO
-        ImageIcon logoOriginal = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
-        Image imgLogo = logoOriginal.getImage().getScaledInstance(260, -1, Image.SCALE_SMOOTH);
+        // CENTRO COM LOGO E BOTÃO
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setBackground(new Color(13, 11, 80));
+
+        // Logo
+        ImageIcon logoIcon = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
+        Image imgLogo = logoIcon.getImage().getScaledInstance(260, -1, Image.SCALE_SMOOTH);
         JLabel logoLabel = new JLabel(new ImageIcon(imgLogo));
-        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        logoLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
-        mainPanel.add(logoLabel, BorderLayout.CENTER);
+        logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        logoLabel.setBorder(BorderFactory.createEmptyBorder(50, 0, 0, 0));
 
-        // BOTÕES
-        JPanel botoesPanel = new JPanel();
-        botoesPanel.setLayout(new BoxLayout(botoesPanel, BoxLayout.Y_AXIS));
-        botoesPanel.setBackground(new Color(13, 11, 80));
+        // Botão JOGAR
+        JButton btnJogar = createMenuButton("JOGAR");
+        btnJogar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnJogar.setPreferredSize(new Dimension(280, 65));
+        btnJogar.setMaximumSize(new Dimension(280, 65));
+        btnJogar.setMinimumSize(new Dimension(280, 65));
 
-        String[] botoes = { "JOGAR", "RANKING", "EDITAR", "CADASTRAR" };
-        for (String texto : botoes) {
-            JButton btn = createMenuButton(texto);
+        btnJogar.addActionListener(e -> {
+            new TelaDificuldade().setVisible(true);
+            dispose();
+        });
 
-            switch (texto) {
-                case "JOGAR" -> btn.addActionListener(e -> {
-                    new TelaQuiz().setVisible(true);
-                    dispose();
-                });
-                case "RANKING" -> btn.addActionListener(e -> {
-                    new RankingScreen().setVisible(true);
-                    dispose();
-                });
-                case "EDITAR" -> btn.addActionListener(e -> {
-                    new TelaEditar().setVisible(true);
-                });
-                case "CADASTRAR" -> btn.addActionListener(e -> {
-                    new TelaCadastro().setVisible(true);
-                });
-            }
+        // Montar layout
+        centerPanel.add(logoLabel);
+        centerPanel.add(Box.createVerticalStrut(100)); // espaçamento extra entre logo e botão
+        centerPanel.add(btnJogar);
 
-            btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-            botoesPanel.add(btn);
-            botoesPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        }
-
-        JPanel wrapper = new JPanel(new GridBagLayout());
-        wrapper.setBackground(new Color(13, 11, 80));
-        wrapper.setBorder(BorderFactory.createEmptyBorder(0, 0, 100, 0));
-        wrapper.add(botoesPanel);
-
-        mainPanel.add(wrapper, BorderLayout.SOUTH);
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
 
         add(mainPanel);
         setVisible(true);
@@ -126,9 +112,6 @@ public class TelaAdm extends JFrame {
         button.setBackground(corNormal);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(280, 65));
-        button.setMinimumSize(new Dimension(280, 65));
-        button.setMaximumSize(new Dimension(280, 65));
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
 
@@ -160,6 +143,6 @@ public class TelaAdm extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(TelaAdm::new);
+        SwingUtilities.invokeLater(TelaAluno::new);
     }
 }

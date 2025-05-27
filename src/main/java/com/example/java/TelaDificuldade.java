@@ -16,7 +16,7 @@ public class TelaDificuldade extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(new Color(13, 11, 80));
 
-        // 🔝 TOPO: ÍCONES
+        // TOPO
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
 
@@ -32,15 +32,13 @@ public class TelaDificuldade extends JFrame {
         configurarBotaoIcone(btnConfig);
         configurarBotaoIcone(btnPerfil);
 
-        // ✅ Torna o botão de configuração funcional (abre TelaSom)
         btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
 
         topPanel.add(btnConfig, BorderLayout.WEST);
         topPanel.add(btnPerfil, BorderLayout.EAST);
-
         mainPanel.add(topPanel, BorderLayout.NORTH);
 
-        // 🧱 CENTRO COM TÍTULO + BOTÕES
+        // CENTRO
         JPanel centroPanel = new JPanel();
         centroPanel.setBackground(new Color(13, 11, 80));
         centroPanel.setLayout(new BoxLayout(centroPanel, BoxLayout.Y_AXIS));
@@ -49,7 +47,7 @@ public class TelaDificuldade extends JFrame {
         tituloLabel.setFont(new Font("SansSerif", Font.BOLD, 50));
         tituloLabel.setForeground(Color.WHITE);
         tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        tituloLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 140, 0)); // espaçamento inferior
+        tituloLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 140, 0));
 
         centroPanel.add(tituloLabel);
 
@@ -58,15 +56,30 @@ public class TelaDificuldade extends JFrame {
             JButton btn = createMenuButton(texto);
             btn.setAlignmentX(Component.CENTER_ALIGNMENT);
             centroPanel.add(btn);
-            centroPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Espaço entre botões
+            centroPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         }
 
-        // ⬇ Centralização vertical
         JPanel centroWrapper = new JPanel(new GridBagLayout());
         centroWrapper.setBackground(new Color(13, 11, 80));
         centroWrapper.add(centroPanel);
-
         mainPanel.add(centroWrapper, BorderLayout.CENTER);
+
+        // RODAPÉ COM BOTÃO VOLTAR
+        JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rodape.setBackground(new Color(13, 11, 80));
+
+        JButton btnVoltar = createMenuButton("VOLTAR");
+        btnVoltar.setPreferredSize(new Dimension(150, 50));
+        btnVoltar.setFont(new Font("Arial", Font.BOLD, 20));
+
+        btnVoltar.addActionListener(e -> {
+            new TelaAluno().setVisible(true); // ou TelaLoginProf / TelaAdm, conforme origem
+            dispose();
+        });
+
+        rodape.add(btnVoltar);
+        mainPanel.add(rodape, BorderLayout.SOUTH);
+
         add(mainPanel);
         setVisible(true);
     }
@@ -106,7 +119,7 @@ public class TelaDificuldade extends JFrame {
             protected void paintBorder(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(corNormal);
+                g2.setColor(new Color(195, 141, 41));
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 40, 40);
                 g2.dispose();
             }

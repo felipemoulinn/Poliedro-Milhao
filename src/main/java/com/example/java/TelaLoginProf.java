@@ -57,17 +57,21 @@ public class TelaLoginProf extends JFrame {
             JButton btn = createMenuButton(texto);
 
             switch (texto) {
-                case "JOGAR" -> btn.addActionListener(e -> {
-                    new TelaQuiz().setVisible(true);
-                    dispose();
-                });
+                case "JOGAR" ->
+                    btn.addActionListener(e -> {
+                        new TelaDificuldade().setVisible(true);
+                        dispose();
+                    });
                 case "RANKING" -> btn.addActionListener(e -> {
                     new RankingScreen().setVisible(true);
                     dispose();
                 });
-                case "EDITAR" -> btn.addActionListener(e -> {
-                    new TelaEditar().setVisible(true);
-                });
+                case "EDITAR" ->
+                    btn.addActionListener(e -> {
+                        new TelaEditar().setVisible(true);
+                        dispose(); // Encerra a tela atual
+                    });
+
             }
 
             btn.setAlignmentX(Component.CENTER_ALIGNMENT);
