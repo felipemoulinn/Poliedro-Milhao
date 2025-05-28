@@ -5,10 +5,15 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 
+
+
 public class TelaLogin extends JFrame {
+    private AudioPlayer player;
 
     private JTextField txtEmail;
     private JPasswordField txtSenha;
+    
+    
 
     public TelaLogin() {
         setTitle("Show do Milhão - Login");
@@ -16,7 +21,13 @@ public class TelaLogin extends JFrame {
         getContentPane().setBackground(new Color(18, 14, 129));
         setSize(1000, 800);
         setMinimumSize(new Dimension(800, 600));
-
+        
+        
+            
+        player = new AudioPlayer();
+        player.play("/audio/musicajogodomilhao.wav");
+        
+        
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(new Color(18, 14, 129));
         mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -65,7 +76,7 @@ public class TelaLogin extends JFrame {
         txtEmail.setFont(new Font("Arial", Font.PLAIN, 16));
         txtEmail.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         txtEmail.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+        
         JLabel lblSenha = new JLabel(" Senha");
         lblSenha.setFont(new Font("Arial", Font.PLAIN, 18));
         lblSenha.setForeground(Color.WHITE);
@@ -134,7 +145,7 @@ public class TelaLogin extends JFrame {
 
                 revalidate();
                 repaint();
-            }
+            }           
         });
     }
 
@@ -146,7 +157,7 @@ public class TelaLogin extends JFrame {
                 autenticarUsuario(email, senha);
             }
         });
-
+        
         txtSenha.addActionListener(e -> {
             String email = txtEmail.getText().trim();
             String senha = new String(txtSenha.getPassword()).trim();
@@ -282,10 +293,9 @@ public class TelaLogin extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
+   public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            TelaLogin tela = new TelaLogin();
-            tela.setVisible(true);
+            new TelaLogin().setVisible(true);
         });
-    }
+   }
 }
