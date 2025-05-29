@@ -4,9 +4,16 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.*;
+import java.util.*;
 
 public class TelaExcluir extends JFrame {
     private int usuarioId;
+    private JComboBox<String> comboMateria;
+    private JComboBox<String> comboPergunta;
+    private Map<String, Integer> materiasMap = new HashMap<>();
+    private Map<String, Integer> perguntasMap = new HashMap<>();
+    private ConexaoBD conexaoBD = new ConexaoBD(); // 🔥 NOVO
 
     public TelaExcluir(int usuarioId) {
         this.usuarioId = usuarioId;
@@ -18,7 +25,7 @@ public class TelaExcluir extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(new Color(18, 14, 129));
 
-        // 🔝 TOPO COM ÍCONES
+        // TOPO
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -31,19 +38,16 @@ public class TelaExcluir extends JFrame {
 
         JButton btnPerfil = new JButton(new ImageIcon(imgPerfil));
         JButton btnConfig = new JButton(new ImageIcon(imgConfig));
-
         configurarBotaoIcone(btnPerfil);
         configurarBotaoIcone(btnConfig);
         aplicarHoverIconeSimples(btnPerfil);
         aplicarHoverIconeSimples(btnConfig);
-
         btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
 
         topPanel.add(btnConfig, BorderLayout.WEST);
         topPanel.add(btnPerfil, BorderLayout.EAST);
         mainPanel.add(topPanel, BorderLayout.NORTH);
 
-        // 🧱 PAINEL CENTRAL
         JPanel centerPanel = new JPanel();
         centerPanel.setBackground(new Color(18, 14, 129));
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
@@ -55,7 +59,6 @@ public class TelaExcluir extends JFrame {
         tituloLabel.setBorder(BorderFactory.createEmptyBorder(40, 0, 60, 0));
         centerPanel.add(tituloLabel);
 
-        // MATERIA
         JLabel lblMateria = new JLabel("Selecione a matéria:");
         lblMateria.setForeground(Color.WHITE);
         lblMateria.setFont(new Font("Arial", Font.BOLD, 18));
@@ -63,15 +66,13 @@ public class TelaExcluir extends JFrame {
         centerPanel.add(lblMateria);
         centerPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        String[] materias = {"Biologia", "Matemática", "Português", "História", "Geografia"};
-        JComboBox<String> comboMateria = new JComboBox<>(materias);
+        comboMateria = new JComboBox<>();
         estilizarDropdownArredondado(comboMateria);
         comboMateria.setMaximumSize(new Dimension(350, 45));
         comboMateria.setAlignmentX(Component.CENTER_ALIGNMENT);
         centerPanel.add(comboMateria);
         centerPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
-        // PERGUNTAS
         JLabel lblPergunta = new JLabel("Selecione a pergunta:");
         lblPergunta.setForeground(Color.WHITE);
         lblPergunta.setFont(new Font("Arial", Font.BOLD, 18));
@@ -79,80 +80,143 @@ public class TelaExcluir extends JFrame {
         centerPanel.add(lblPergunta);
         centerPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        String[] perguntas = {
-            "Qual é a capital do Brasil?",
-            "Quanto é 2 + 2?",
-            "Quem escreveu Dom Casmurro?",
-            "O que é fotossíntese?",
-            "Quando foi a independência do Brasil?"
-        };
-        JComboBox<String> comboPergunta = new JComboBox<>(perguntas);
+        comboPergunta = new JComboBox<>();
         estilizarDropdownArredondado(comboPergunta);
         comboPergunta.setMaximumSize(new Dimension(500, 45));
         comboPergunta.setAlignmentX(Component.CENTER_ALIGNMENT);
         centerPanel.add(comboPergunta);
         centerPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
-        // BOTÃO EXCLUIR (ESTILO UNIFICADO)
         JButton btnExcluir = createMenuButton("EXCLUIR");
         btnExcluir.setAlignmentX(Component.CENTER_ALIGNMENT);
         centerPanel.add(btnExcluir);
         centerPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
-        // CENTRALIZAÇÃO
         JPanel centerWrapper = new JPanel(new GridBagLayout());
         centerWrapper.setBackground(new Color(18, 14, 129));
         centerWrapper.add(centerPanel);
         mainPanel.add(centerWrapper, BorderLayout.CENTER);
 
-        // RODAPÉ COM VOLTAR
         JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
         rodape.setBackground(new Color(18, 14, 129));
-
         JButton voltarBtn = createMenuButton("VOLTAR");
         voltarBtn.setPreferredSize(new Dimension(130, 45));
         voltarBtn.addActionListener(e -> {
             new TelaEditar(usuarioId).setVisible(true);
             dispose();
         });
-
         rodape.add(voltarBtn);
         mainPanel.add(rodape, BorderLayout.SOUTH);
 
         add(mainPanel);
         setVisible(true);
+
+        // 🔥 Lógica nova: carregar matérias e eventos
+        carregarMaterias();
+        comboMateria.addActionListener(e -> carregarPerguntas());
+        btnExcluir.addActionListener(e -> excluirPerguntaSelecionada());
     }
 
-    // BOTÃO COM O MESMO ESTILO DA TELA EDITAR
+    private void carregarMaterias() {
+        try (Connection conn = conexaoBD.obterConexao();
+             PreparedStatement stmt = conn.prepareStatement("SELECT id, nome FROM materias");
+             ResultSet rs = stmt.executeQuery()) {
+
+            comboMateria.removeAllItems();
+            materiasMap.clear();
+
+            while (rs.next()) {
+                String nome = rs.getString("nome");
+                int id = rs.getInt("id");
+                materiasMap.put(nome, id);
+                comboMateria.addItem(nome);
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar matérias.");
+            e.printStackTrace();
+        }
+    }
+
+    private void carregarPerguntas() {
+        String materiaSelecionada = (String) comboMateria.getSelectedItem();
+        if (materiaSelecionada == null) return;
+
+        int materiaId = materiasMap.get(materiaSelecionada);
+
+        try (Connection conn = conexaoBD.obterConexao();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT id, enunciado FROM perguntas WHERE materia_id = ? AND cadastrado_por = ?")) {
+            stmt.setInt(1, materiaId);
+            stmt.setInt(2, usuarioId);
+
+            ResultSet rs = stmt.executeQuery();
+            comboPergunta.removeAllItems();
+            perguntasMap.clear();
+
+            while (rs.next()) {
+                String enunciado = rs.getString("enunciado");
+                int id = rs.getInt("id");
+                perguntasMap.put(enunciado, id);
+                comboPergunta.addItem(enunciado);
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar perguntas.");
+            e.printStackTrace();
+        }
+    }
+
+    private void excluirPerguntaSelecionada() {
+        String perguntaSelecionada = (String) comboPergunta.getSelectedItem();
+        if (perguntaSelecionada == null) return;
+
+        int perguntaId = perguntasMap.get(perguntaSelecionada);
+
+        int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja excluir esta pergunta?", "Confirmar", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) return;
+
+        try (Connection conn = conexaoBD.obterConexao();
+             PreparedStatement stmt = conn.prepareStatement("DELETE FROM perguntas WHERE id = ?")) {
+
+            stmt.setInt(1, perguntaId);
+            int afetadas = stmt.executeUpdate();
+
+            if (afetadas > 0) {
+                JOptionPane.showMessageDialog(this, "Pergunta excluída com sucesso.");
+                carregarPerguntas(); // Atualiza lista
+            } else {
+                JOptionPane.showMessageDialog(this, "Não foi possível excluir a pergunta.");
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao excluir pergunta.");
+            e.printStackTrace();
+        }
+    }
+
+    // ⬇️ Métodos utilitários permanecem os mesmos
     private JButton createMenuButton(String text) {
         Color corNormal = new Color(195, 141, 41);
         Color corHover = new Color(255, 200, 70);
 
         JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
+            @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(getBackground());
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 40, 40);
-
                 FontMetrics fm = g2.getFontMetrics();
                 int x = (getWidth() - fm.stringWidth(getText())) / 2;
                 int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
-
-                g2.setColor(Color.BLACK);
-                g2.drawString(getText(), x + 1, y + 1);
-                g2.setColor(getForeground());
-                g2.drawString(getText(), x, y);
+                g2.setColor(Color.BLACK); g2.drawString(getText(), x + 1, y + 1);
+                g2.setColor(getForeground()); g2.drawString(getText(), x, y);
                 g2.dispose();
             }
-
-            @Override
-            protected void paintBorder(Graphics g) {
+            @Override protected void paintBorder(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(corNormal);
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 40, 40);
+                g2.setColor(corNormal); g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 40, 40);
                 g2.dispose();
             }
         };
@@ -169,7 +233,6 @@ public class TelaExcluir extends JFrame {
             public void mouseEntered(MouseEvent e) {
                 button.setBackground(corHover);
             }
-
             public void mouseExited(MouseEvent e) {
                 button.setBackground(corNormal);
             }
@@ -183,8 +246,7 @@ public class TelaExcluir extends JFrame {
         dropdown.setBackground(Color.WHITE);
         dropdown.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
         dropdown.setUI(new BasicComboBoxUI() {
-            @Override
-            protected JButton createArrowButton() {
+            @Override protected JButton createArrowButton() {
                 JButton button = new JButton("▼");
                 button.setFont(new Font("Arial", Font.PLAIN, 12));
                 button.setContentAreaFilled(false);
@@ -215,9 +277,5 @@ public class TelaExcluir extends JFrame {
     private void aplicarHoverIconeSimples(JButton botao) {
         botao.setRolloverEnabled(true);
         botao.setContentAreaFilled(false);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaExcluir(1));
     }
 }

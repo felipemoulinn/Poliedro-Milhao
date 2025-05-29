@@ -143,8 +143,4 @@ public class TelaAluno extends JFrame {
         botao.setBackground(new Color(255, 255, 255, 30));
         botao.setContentAreaFilled(false);
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaAluno(1));
-    }
 }

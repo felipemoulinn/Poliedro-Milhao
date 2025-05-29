@@ -189,10 +189,12 @@ public class TelaLogin extends JFrame {
                 int usuarioId = conexaoBD.obterIdUsuario(email);
                 
                 switch (tipoUsuario.toLowerCase()) {
-                    case "aluno":
-                        JOptionPane.showMessageDialog(this, "Bem-vindo, Aluno!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-                        new TelaAluno(usuarioId).setVisible(true);
-                        break;
+              case "aluno":
+    JOptionPane.showMessageDialog(this, "Bem-vindo, Aluno!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+    System.out.println("Redirecionando para TelaAluno com ID: " + usuarioId);
+    new TelaAluno(usuarioId).setVisible(true);
+    break;
+
                     case "professor":
                         JOptionPane.showMessageDialog(this, "Bem-vindo, Professor!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                         new TelaLoginProf(usuarioId).setVisible(true);

@@ -171,8 +171,4 @@ public class TelaEditar extends JFrame {
         botao.setRolloverEnabled(true);
         botao.setContentAreaFilled(false);
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaEditar(1));
-    }
 }

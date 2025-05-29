@@ -37,6 +37,12 @@ public class TelaAdm extends JFrame {
         configurarBotaoIcone(btnPerfil);
         aplicarHoverIconeSimples(btnPerfil);
 
+        // ✅ ABRIR TelaUsuario AO CLICAR NO ÍCONE DE PERFIL
+        btnPerfil.addActionListener(e -> {
+            TelaUsuario telaUsuario = new TelaUsuario(this);
+            telaUsuario.setVisible(true);
+        });
+
         topPanel.add(btnConfig, BorderLayout.WEST);
         topPanel.add(btnPerfil, BorderLayout.EAST);
         mainPanel.add(topPanel, BorderLayout.NORTH);
@@ -54,12 +60,11 @@ public class TelaAdm extends JFrame {
         botoesPanel.setLayout(new BoxLayout(botoesPanel, BoxLayout.Y_AXIS));
         botoesPanel.setBackground(new Color(18, 14, 129));
 
-        String[] botoes = {"RANKING", "EDITAR", "CADASTRAR" };
+        String[] botoes = { "RANKING", "EDITAR", "CADASTRAR" };
         for (String texto : botoes) {
             JButton btn = createMenuButton(texto);
 
             switch (texto) {
-                
                 case "RANKING" -> btn.addActionListener(e -> {
                     new RankingScreen(usuarioId).setVisible(true);
                     dispose();
@@ -69,7 +74,10 @@ public class TelaAdm extends JFrame {
                     dispose();
                 });
                 case "CADASTRAR" -> btn.addActionListener(e -> {
-                    new TelaCadastro().setVisible(true);
+                    getContentPane().removeAll(); // limpa a tela atual
+                    getContentPane().add(new TelaCadastro()); // adiciona o painel da TelaCadastro
+                    revalidate(); // atualiza layout
+                    repaint(); // redesenha a janela
                 });
             }
 
@@ -157,9 +165,5 @@ public class TelaAdm extends JFrame {
         botao.setRolloverEnabled(true);
         botao.setBackground(new Color(255, 255, 255, 30));
         botao.setContentAreaFilled(false);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaAdm(1));
     }
 }

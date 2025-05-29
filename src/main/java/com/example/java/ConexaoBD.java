@@ -10,7 +10,7 @@ public class ConexaoBD {
     private String port = "3306";
     private String db = "quiz_educacional_db";
     private String user = "root";
-    private String password = "imtdb";
+    private String password = "Felipe0069@";
 
     public Connection obterConexao() throws Exception {
         String url = String.format(

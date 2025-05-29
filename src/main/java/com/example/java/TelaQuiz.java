@@ -93,93 +93,36 @@ final public class TelaQuiz extends JFrame {
 
             mainPanel.add(painelRespostas, BorderLayout.CENTER);
 
-            // Botões auxiliares
+            // Botões auxiliares (modificado conforme solicitado)
             JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 20));
             painelBotoes.setBackground(COR_FUNDO);
 
             JButton btnPular = criarBotaoAuxiliar("Pular");
-            JButton btnAjuda = criarBotaoAuxiliar("Ajuda");
+            JButton btnDica = criarBotaoAuxiliar("Dica");  // Alterado de "Ajuda" para "Dica"
             JButton btnSair = criarBotaoAuxiliar("Sair");
-            JButton btnSalvar = criarBotaoAuxiliar("Salvar e Sair");
 
             painelBotoes.add(btnPular);
-            painelBotoes.add(btnAjuda);
-            painelBotoes.add(btnSalvar);
+            painelBotoes.add(btnDica);
             painelBotoes.add(btnSair);
 
             mainPanel.add(painelBotoes, BorderLayout.SOUTH);
 
             add(mainPanel);
 
-            // Configura ações dos botões
+            // Configura ações dos botões (modificado conforme solicitado)
             btnPular.addActionListener(e -> pularPergunta());
-            btnAjuda.addActionListener(e -> mostrarAjuda());
-            btnSalvar.addActionListener(e -> {
-                try {
-                    salvarProgresso();
-                } catch (Exception e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-                try (Connection conn = conexaoBD.obterConexao()) {
-                    String sql = "SELECT tipo FROM usuarios WHERE id = ?";
-                    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                        stmt.setInt(1, usuarioId);
-                        ResultSet rs = stmt.executeQuery();
-                        if (rs.next()) {
-                            String tipoUsuario = rs.getString("tipo");
-                            new TelaDificuldade(tipoUsuario, usuarioId).setVisible(true);
-                            dispose();
-                        }
-                    }
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(this, 
-                        "Erro ao retornar à tela de dificuldade: " + ex.getMessage(),
-                        "Erro",
-                        JOptionPane.ERROR_MESSAGE);
-                } catch (Exception e1) {
-                                    // TODO Auto-generated catch block
-                                    e1.printStackTrace();
-                                }
-            });
+            btnDica.addActionListener(e -> mostrarDica());  // Método renomeado para mostrarDica()
+            
+            // Nova ação para o botão Sair
             btnSair.addActionListener(e -> {
                 int opcao = JOptionPane.showConfirmDialog(this,
-                    "Deseja salvar seu progresso antes de sair?",
-                    "Salvar Progresso",
-                    JOptionPane.YES_NO_CANCEL_OPTION);
+                    "Deseja realmente sair do quiz?",
+                    "Confirmar Saída",
+                    JOptionPane.YES_NO_OPTION);
                 
                 if (opcao == JOptionPane.YES_OPTION) {
-                    try {
-                        salvarProgresso();
-                    } catch (Exception e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
-                }
-                
-                if (opcao != JOptionPane.CANCEL_OPTION) {
-                    try (Connection conn = conexaoBD.obterConexao()) {
-                        String sql = "SELECT tipo FROM usuarios WHERE id = ?";
-                        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                            stmt.setInt(1, usuarioId);
-                            ResultSet rs = stmt.executeQuery();
-                            if (rs.next()) {
-                                String tipoUsuario = rs.getString("tipo");
-                                new TelaDificuldade(tipoUsuario, usuarioId).setVisible(true);
-                                dispose();
-                            }
-                        }
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
-                        JOptionPane.showMessageDialog(this, 
-                            "Erro ao retornar à tela de dificuldade: " + ex.getMessage(),
-                            "Erro",
-                            JOptionPane.ERROR_MESSAGE);
-                    } catch (Exception e1) {
-                                            // TODO Auto-generated catch block
-                                            e1.printStackTrace();
-                                        }
+                    dispose();
+
                 }
             });
 
@@ -584,19 +527,20 @@ final public class TelaQuiz extends JFrame {
         }
     }
 
-    private void mostrarAjuda() {
+    // Método renomeado de mostrarAjuda() para mostrarDica()
+    private void mostrarDica() {
         if (questaoAtual >= 0 && questaoAtual < bancoQuestoes.size()) {
             Questao questaoAtual = bancoQuestoes.get(this.questaoAtual);
             String ajuda = questaoAtual.getAjuda();
             if (ajuda != null && !ajuda.trim().isEmpty()) {
                 JOptionPane.showMessageDialog(this,
                     ajuda,
-                    "Ajuda",
+                    "Dica",
                     JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(this,
                     "Não há dica disponível para esta pergunta.",
-                    "Ajuda",
+                    "Dica",
                     JOptionPane.INFORMATION_MESSAGE);
             }
         }

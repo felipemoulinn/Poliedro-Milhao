@@ -40,6 +40,12 @@ public class TelaDificuldade extends JFrame {
 
         btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
 
+        // ✅ ABRIR TelaUsuario ao clicar no ícone de perfil
+        btnPerfil.addActionListener(e -> {
+            TelaUsuario telaUsuario = new TelaUsuario(this);
+            telaUsuario.setVisible(true);
+        });
+
         topPanel.add(btnConfig, BorderLayout.WEST);
         topPanel.add(btnPerfil, BorderLayout.EAST);
         mainPanel.add(topPanel, BorderLayout.NORTH);
@@ -89,7 +95,7 @@ public class TelaDificuldade extends JFrame {
         btnVoltar.addActionListener(e -> {
             switch (tipoUsuario.toLowerCase()) {
                 case "aluno":
-                    new TelaAluno(usuarioId).setVisible(true);
+                    // TODO: Ação para aluno
                     break;
                 case "professor":
                     new TelaLoginProf(usuarioId).setVisible(true);
@@ -169,9 +175,5 @@ public class TelaDificuldade extends JFrame {
         });
 
         return botao;
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TelaDificuldade("aluno", 1));
     }
 }

@@ -194,8 +194,4 @@ public class TelaCadastro extends JFrame {
             JOptionPane.showMessageDialog(this, "Erro ao cadastrar: " + ex.getMessage());
         }
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(TelaCadastro::new);
-    }
 }
