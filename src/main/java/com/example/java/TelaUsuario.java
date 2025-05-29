@@ -122,12 +122,4 @@ public class TelaUsuario extends JDialog {
             return false;
         }
     }
-
-    // Main para testes
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            TelaUsuario usuario = new TelaUsuario(null);
-            usuario.setVisible(true);
-        });
-    }
 }

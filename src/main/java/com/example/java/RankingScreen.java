@@ -73,7 +73,7 @@ public class RankingScreen extends JFrame {
                         "Erro", 
                         JOptionPane.ERROR_MESSAGE);
                 } catch (Exception e1) {
-                                    // TODO Auto-generated catch block
+                                
                                     e1.printStackTrace();
                                 }
             });
@@ -229,16 +229,5 @@ public class RankingScreen extends JFrame {
         public Insets getBorderInsets(Component c) {
             return new Insets(radius / 2, radius / 2, radius / 2, radius / 2);
         }
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                new RankingScreen(1).setVisible(true);
-            } catch (ClassNotFoundException e) {
-                JOptionPane.showMessageDialog(null, "Driver JDBC não encontrado!");
-            }
-        });
     }
 }
