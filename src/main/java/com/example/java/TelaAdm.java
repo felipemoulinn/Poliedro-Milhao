@@ -36,10 +36,8 @@ public class TelaAdm extends JFrame {
         JButton btnPerfil = new JButton(new ImageIcon(imgPerfil));
         configurarBotaoIcone(btnPerfil);
         aplicarHoverIconeSimples(btnPerfil);
-
-        // ✅ ABRIR TelaUsuario AO CLICAR NO ÍCONE DE PERFIL
         btnPerfil.addActionListener(e -> {
-            TelaUsuario telaUsuario = new TelaUsuario(this);
+            TelaUsuario telaUsuario = new TelaUsuario(this, usuarioId);
             telaUsuario.setVisible(true);
         });
 
@@ -60,7 +58,7 @@ public class TelaAdm extends JFrame {
         botoesPanel.setLayout(new BoxLayout(botoesPanel, BoxLayout.Y_AXIS));
         botoesPanel.setBackground(new Color(18, 14, 129));
 
-        String[] botoes = { "RANKING", "EDITAR", "CADASTRAR" };
+        String[] botoes = { "RANKING", "EDITAR", "CADASTRAR", "EXCLUIR" };
         for (String texto : botoes) {
             JButton btn = createMenuButton(texto);
 
@@ -74,10 +72,12 @@ public class TelaAdm extends JFrame {
                     dispose();
                 });
                 case "CADASTRAR" -> btn.addActionListener(e -> {
-                    getContentPane().removeAll(); // limpa a tela atual
-                    getContentPane().add(new TelaCadastro()); // adiciona o painel da TelaCadastro
-                    revalidate(); // atualiza layout
-                    repaint(); // redesenha a janela
+                    new TelaCadastro(usuarioId).setVisible(true);
+                    dispose();
+                });
+                case "EXCLUIR" -> btn.addActionListener(e -> {
+                    new TelaExclusaoUsuario(usuarioId).setVisible(true);
+                    dispose();
                 });
             }
 

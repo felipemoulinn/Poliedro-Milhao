@@ -58,8 +58,20 @@ public class RankingScreen extends JFrame {
                         ResultSet rs = stmt.executeQuery();
                         if (rs.next()) {
                             String tipoUsuario = rs.getString("tipo");
-                            new TelaDificuldade(tipoUsuario, usuarioId).setVisible(true);
-                            dispose();
+                            switch (tipoUsuario) {
+                                case "professor" -> {
+                                    new TelaLoginProf(usuarioId).setVisible(true);
+                                    dispose();
+                                }
+                                case "admin" -> {
+                                    new TelaAdm(usuarioId).setVisible(true);
+                                    dispose();
+                                }
+                                default -> {
+                                    new TelaDificuldade(tipoUsuario, usuarioId).setVisible(true);
+                                    dispose();
+                                }
+                            }
                         } else {
                             JOptionPane.showMessageDialog(this, 
                                 "Erro: Usuário não encontrado", 
@@ -73,9 +85,8 @@ public class RankingScreen extends JFrame {
                         "Erro", 
                         JOptionPane.ERROR_MESSAGE);
                 } catch (Exception e1) {
-                                
-                                    e1.printStackTrace();
-                                }
+                    e1.printStackTrace();
+                }
             });
 
             mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));

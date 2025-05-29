@@ -5,17 +5,39 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.net.URL;
+import java.sql.*;
 
 public class TelaUsuario extends JDialog {
+    private int usuarioId;
+    private String userEmail;
+    private String userName;
 
-    public TelaUsuario(JFrame parent) {
+    public TelaUsuario(JFrame parent, int usuarioId) {
         super(parent, "Perfil", true);
+        this.usuarioId = usuarioId;
         setSize(300, 350);
         setLocationRelativeTo(parent);
-        getContentPane().setBackground(new Color(255, 255, 255));
+        getContentPane().setBackground(new Color(195, 141, 41)); // Fundo amarelo
         setLayout(null);
         setUndecorated(true);
         setShape(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 30, 30));
+
+        // Buscar dados do usuário do banco de dados
+        try (Connection conn = new ConexaoBD().obterConexao()) {
+            String sql = "SELECT nome, email FROM usuarios WHERE id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, usuarioId);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    userEmail = rs.getString("email");
+                    userName = rs.getString("nome");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            userEmail = "Email não encontrado";
+            userName = "Nome não encontrado";
+        }
 
         // Avatar com verificação de imagem
         URL perfilIconURL = getClass().getClassLoader().getResource("perfil2.png");
@@ -27,7 +49,7 @@ public class TelaUsuario extends JDialog {
         add(avatar);
 
         // Nome
-        JLabel nome = new JLabel("Gustavo Silva Bezerra");
+        JLabel nome = new JLabel(userName);
         nome.setForeground(Color.WHITE);
         nome.setFont(new Font("Arial", Font.BOLD, 14));
         nome.setBounds(0, 130, 300, 20);
@@ -35,7 +57,7 @@ public class TelaUsuario extends JDialog {
         add(nome);
 
         // Email
-        JLabel email = new JLabel("GustavoSilva@aluno.com");
+        JLabel email = new JLabel(userEmail);
         email.setForeground(new Color(180, 180, 180));
         email.setFont(new Font("Arial", Font.PLAIN, 12));
         email.setBounds(0, 150, 300, 20);

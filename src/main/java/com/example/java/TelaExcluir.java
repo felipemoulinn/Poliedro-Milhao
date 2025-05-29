@@ -44,6 +44,12 @@ public class TelaExcluir extends JFrame {
         aplicarHoverIconeSimples(btnConfig);
         btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
 
+        // Adicionar ação ao botão de perfil
+        btnPerfil.addActionListener(e -> {
+            TelaUsuario telaUsuario = new TelaUsuario(this, usuarioId);
+            telaUsuario.setVisible(true);
+        });
+
         topPanel.add(btnConfig, BorderLayout.WEST);
         topPanel.add(btnPerfil, BorderLayout.EAST);
         mainPanel.add(topPanel, BorderLayout.NORTH);

@@ -3,6 +3,7 @@ package com.example.java;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.sql.*;
 
 public class TelaEditar extends JFrame {
     private int usuarioId;
@@ -38,6 +39,12 @@ public class TelaEditar extends JFrame {
         aplicarHoverIconeSimples(btnConfig);
 
         btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
+
+        // Adicionar ação ao botão de perfil
+        btnPerfil.addActionListener(e -> {
+            TelaUsuario telaUsuario = new TelaUsuario(this, usuarioId);
+            telaUsuario.setVisible(true);
+        });
 
         topPanel.add(btnConfig, BorderLayout.WEST);
         topPanel.add(btnPerfil, BorderLayout.EAST);
@@ -92,10 +99,39 @@ public class TelaEditar extends JFrame {
         JButton voltarBtn = createMenuButton("VOLTAR");
         voltarBtn.setPreferredSize(new Dimension(130, 45));
 
-        // ✅ Ação para retornar à TelaLoginProf
         voltarBtn.addActionListener(e -> {
-            new TelaLoginProf(usuarioId).setVisible(true);
-            dispose();
+            try (Connection conn = new ConexaoBD().obterConexao()) {
+                String sql = "SELECT tipo FROM usuarios WHERE id = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setInt(1, usuarioId);
+                    ResultSet rs = stmt.executeQuery();
+                    if (rs.next()) {
+                        String tipoUsuario = rs.getString("tipo");
+                        switch (tipoUsuario) {
+                            case "professor" -> {
+                                new TelaLoginProf(usuarioId).setVisible(true);
+                                dispose();
+                            }
+                            case "admin" -> {
+                                new TelaAdm(usuarioId).setVisible(true);
+                                dispose();
+                            }
+                            default -> {
+                                JOptionPane.showMessageDialog(this,
+                                    "Tipo de usuário não autorizado",
+                                    "Erro",
+                                    JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this,
+                    "Erro ao verificar tipo de usuário: " + ex.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         rodape.add(voltarBtn);

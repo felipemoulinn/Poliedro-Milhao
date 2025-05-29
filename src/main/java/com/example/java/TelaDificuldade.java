@@ -42,7 +42,7 @@ public class TelaDificuldade extends JFrame {
 
         // ✅ ABRIR TelaUsuario ao clicar no ícone de perfil
         btnPerfil.addActionListener(e -> {
-            TelaUsuario telaUsuario = new TelaUsuario(this);
+            TelaUsuario telaUsuario = new TelaUsuario(this, usuarioId);
             telaUsuario.setVisible(true);
         });
 
@@ -95,14 +95,9 @@ public class TelaDificuldade extends JFrame {
         btnVoltar.addActionListener(e -> {
             switch (tipoUsuario.toLowerCase()) {
                 case "aluno":
-                    // TODO: Ação para aluno
+                    new TelaAluno(usuarioId).setVisible(true);
                     break;
-                case "professor":
-                    new TelaLoginProf(usuarioId).setVisible(true);
-                    break;
-                case "admin":
-                    new TelaAdm(usuarioId).setVisible(true);
-                    break;
+               
                 default:
                     JOptionPane.showMessageDialog(this, "Tipo de usuário desconhecido!", "Erro", JOptionPane.ERROR_MESSAGE);
             }

@@ -1,42 +1,38 @@
 package com.example.java;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.sql.*;
 import javax.swing.*;
 
-public class TelaCadastro extends JFrame {
+public class TelaExclusaoUsuario extends JFrame {
 
     private JTextField emailField;
-    private JPasswordField senhaField;
-    private JTextField nomeField;
-    private JComboBox<String> tipoCombo;
     private int usuarioId;
 
-    public TelaCadastro(int usuarioId) {
+    public TelaExclusaoUsuario(int usuarioId) {
         this.usuarioId = usuarioId;
-        setTitle("Cadastro");
+
+        setTitle("Exclusão de Usuário");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         getContentPane().setBackground(new Color(18, 14, 129));
         setLayout(new BorderLayout());
 
-        // Painel wrapper centralizado
         JPanel wrapper = new JPanel(new GridBagLayout());
         wrapper.setBackground(new Color(18, 14, 129));
 
-        // Painel central com campos
         JPanel painelCentral = new JPanel();
         painelCentral.setBackground(new Color(18, 14, 129));
         painelCentral.setLayout(new BoxLayout(painelCentral, BoxLayout.Y_AXIS));
 
-        JLabel titulo = new JLabel("CADASTRO");
+        JLabel titulo = new JLabel("EXCLUIR USUÁRIO");
         titulo.setFont(new Font("SansSerif", Font.BOLD, 42));
         titulo.setForeground(Color.WHITE);
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
         painelCentral.add(titulo);
         painelCentral.add(Box.createRigidArea(new Dimension(0, 40)));
 
-        // Email
         JLabel emailLabel = new JLabel("Login (e-mail) ✉");
         emailLabel.setForeground(Color.WHITE);
         emailLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
@@ -46,54 +42,16 @@ public class TelaCadastro extends JFrame {
         emailField = new JTextField();
         estilizarCampoArredondado(emailField);
         painelCentral.add(emailField);
-        painelCentral.add(Box.createRigidArea(new Dimension(0, 10)));
-
-        // Senha
-        JLabel senhaLabel = new JLabel("Senha 🔒");
-        senhaLabel.setForeground(Color.WHITE);
-        senhaLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
-        senhaLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        painelCentral.add(senhaLabel);
-
-        senhaField = new JPasswordField();
-        estilizarCampoArredondado(senhaField);
-        painelCentral.add(senhaField);
-        painelCentral.add(Box.createRigidArea(new Dimension(0, 10)));
-
-        // Nome
-        JLabel nomeLabel = new JLabel("Nome:");
-        nomeLabel.setForeground(Color.WHITE);
-        nomeLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
-        nomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        painelCentral.add(nomeLabel);
-
-        nomeField = new JTextField();
-        estilizarCampoArredondado(nomeField);
-        painelCentral.add(nomeField);
-        painelCentral.add(Box.createRigidArea(new Dimension(0, 10)));
-
-        // Tipo
-        JLabel tipoLabel = new JLabel("Tipo de Usuário:");
-        tipoLabel.setForeground(Color.WHITE);
-        tipoLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
-        tipoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        painelCentral.add(tipoLabel);
-
-        tipoCombo = new JComboBox<>(new String[]{"admin", "professor", "aluno"});
-        tipoCombo.setMaximumSize(new Dimension(600, 40));
-        painelCentral.add(tipoCombo);
         painelCentral.add(Box.createRigidArea(new Dimension(0, 30)));
 
-        // Botão cadastrar
-        JButton cadastrarBtn = criarBotaoArredondado("Cadastrar", new Color(220, 220, 220), Color.BLACK);
-        cadastrarBtn.setMaximumSize(new Dimension(230, 50));
-        cadastrarBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        painelCentral.add(cadastrarBtn);
+        JButton excluirBtn = criarBotaoArredondado("Excluir", new Color(255, 50, 50), Color.WHITE);
+        excluirBtn.setMaximumSize(new Dimension(230, 50));
+        excluirBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        painelCentral.add(excluirBtn);
 
         wrapper.add(painelCentral);
         add(wrapper, BorderLayout.CENTER);
 
-        // Rodapé
         JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
         rodape.setBackground(new Color(18, 14, 129));
 
@@ -107,7 +65,7 @@ public class TelaCadastro extends JFrame {
         rodape.add(voltarBtn);
         add(rodape, BorderLayout.SOUTH);
 
-        cadastrarBtn.addActionListener(e -> cadastrarUsuario());
+        excluirBtn.addActionListener(e -> excluirUsuario());
 
         setVisible(true);
     }
@@ -161,14 +119,11 @@ public class TelaCadastro extends JFrame {
         return btn;
     }
 
-    private void cadastrarUsuario() {
+    private void excluirUsuario() {
         String email = emailField.getText();
-        String senha = new String(senhaField.getPassword());
-        String nome = nomeField.getText();
-        String tipo = (String) tipoCombo.getSelectedItem();
 
-        if (email.isEmpty() || senha.isEmpty() || nome.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Preencha todos os campos.");
+        if (email.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Informe o e-mail do usuário a ser excluído.");
             return;
         }
 
@@ -176,24 +131,42 @@ public class TelaCadastro extends JFrame {
             ConexaoBD conexaoBD = new ConexaoBD();
             Connection conn = conexaoBD.obterConexao();
 
-            String sql = "INSERT INTO usuarios (email, senha, nome, tipo) VALUES (?, ?, ?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, email);
-            stmt.setString(2, senha);
-            stmt.setString(3, nome);
-            stmt.setString(4, tipo);
-            stmt.executeUpdate();
+            // Buscar o ID do usuário com base no e-mail
+            String selectSql = "SELECT id FROM usuarios WHERE email = ?";
+            PreparedStatement selectStmt = conn.prepareStatement(selectSql);
+            selectStmt.setString(1, email);
+            ResultSet rs = selectStmt.executeQuery();
 
-            JOptionPane.showMessageDialog(this, "Usuário cadastrado com sucesso!");
-            emailField.setText("");
-            senhaField.setText("");
-            nomeField.setText("");
-            tipoCombo.setSelectedIndex(0);
+            if (rs.next()) {
+                int usuarioId = rs.getInt("id");
 
-            stmt.close();
+                // Deleta da tabela pontuacao primeiro
+                PreparedStatement deletePontuacao = conn.prepareStatement("DELETE FROM pontuacao WHERE aluno_id = ?");
+                deletePontuacao.setInt(1, usuarioId);
+                deletePontuacao.executeUpdate();
+                deletePontuacao.close();
+
+                // Agora deleta o usuário
+                PreparedStatement deleteUsuario = conn.prepareStatement("DELETE FROM usuarios WHERE id = ?");
+                deleteUsuario.setInt(1, usuarioId);
+                int linhasAfetadas = deleteUsuario.executeUpdate();
+                deleteUsuario.close();
+
+                if (linhasAfetadas > 0) {
+                    JOptionPane.showMessageDialog(this, "Usuário excluído com sucesso!");
+                    emailField.setText("");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Erro ao excluir usuário.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Usuário não encontrado.");
+            }
+
+            rs.close();
+            selectStmt.close();
             conn.close();
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erro ao cadastrar: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Erro ao excluir: " + ex.getMessage());
         }
     }
 }
