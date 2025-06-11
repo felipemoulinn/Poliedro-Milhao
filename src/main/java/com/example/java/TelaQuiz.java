@@ -2,6 +2,7 @@ package com.example.java;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.sql.*;
 import java.util.*;
 import java.util.List;
@@ -9,6 +10,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 import java.io.*;
 import java.util.stream.Collectors;
+import javax.imageio.ImageIO;
 
 final public class TelaQuiz extends JFrame {
     JLabel lblPergunta;
@@ -19,21 +21,23 @@ final public class TelaQuiz extends JFrame {
     private int questaoAtual = 0;
     private int pontos = 0;
     private int perguntasRespondidas = 0;
-    private static final int TOTAL_PERGUNTAS = 5;
+    private static final int TOTAL_PERGUNTAS = 13;
     private String dificuldade;
     private ConexaoBD conexaoBD;
     private int usuarioId;
     private boolean dicaUsada = false;  // Nova variável para controlar uso da dica
+    private boolean puloUsado = false;
 
     // Cores
     private final Color COR_FUNDO = new Color(191, 148, 69);
-    private final Color COR_TEXTO_PERGUNTA = new Color(50, 50, 50);
+    private final Color COR_TEXTO_PERGUNTA = new Color(255, 255, 255);
     private final Color COR_BOTAO_NORMAL = new Color(21, 42, 110);
     private final Color COR_BOTAO_HOVER = new Color(50, 80, 179);
     private final Color COR_BOTAO_CERTO = new Color(0, 150, 0);
     private final Color COR_BOTAO_ERRADO = new Color(150, 0, 0);
     private final Color COR_BORDA_BOTAO = new Color(0, 0, 0);
     private final Color COR_TEXTO_BOTAO = new Color(255, 255, 255);
+    private BufferedImage backgroundImage;
 
     public TelaQuiz(String dificuldade, int usuarioId) {
         try {
@@ -49,24 +53,48 @@ final public class TelaQuiz extends JFrame {
             setMinimumSize(new Dimension(800, 600));
 
             // Painel principal
-            JPanel mainPanel = new JPanel(new BorderLayout(10, 20));
-            mainPanel.setBackground(COR_FUNDO);
-            mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+            try {
+                backgroundImage = ImageIO.read(getClass().getResource("/bg4.jpg"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // Painel principal com GridBagLayout
+            JPanel mainPanel = new JPanel(new GridBagLayout()) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    if (backgroundImage != null) {
+                        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                    }
+                }
+            };
+            mainPanel.setOpaque(false);
+
+            // Constraints para organizar os componentes
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.insets = new Insets(10, 10, 10, 10);
 
             // Painel superior com pontuação
             JPanel topPanel = new JPanel(new BorderLayout());
-            topPanel.setBackground(COR_FUNDO);
+            topPanel.setOpaque(false);
 
             lblPontuacao = new JLabel("Pontos: R$ 0", SwingConstants.RIGHT);
             lblPontuacao.setFont(new Font("Arial", Font.BOLD, 24));
             lblPontuacao.setForeground(Color.WHITE);
             topPanel.add(lblPontuacao, BorderLayout.EAST);
 
-            mainPanel.add(topPanel, BorderLayout.NORTH);
+            // Adiciona topPanel ao mainPanel
+            gbc.weightx = 1;
+            gbc.weighty = 0.1;
+            gbc.anchor = GridBagConstraints.NORTH;
+            mainPanel.add(topPanel, gbc);
 
             // Painel da pergunta
             JPanel painelPergunta = new JPanel(new BorderLayout());
-            painelPergunta.setBackground(COR_FUNDO);
+            painelPergunta.setOpaque(false);
 
             lblPergunta = new JLabel("", SwingConstants.CENTER);
             lblPergunta.setFont(new Font("Arial", Font.BOLD, 32));
@@ -74,15 +102,19 @@ final public class TelaQuiz extends JFrame {
             lblPergunta.setBorder(BorderFactory.createEmptyBorder(20, 50, 50, 50));
 
             JPanel perguntaContainer = new JPanel(new BorderLayout());
-            perguntaContainer.setBackground(COR_FUNDO);
+            perguntaContainer.setOpaque(false);
             perguntaContainer.add(lblPergunta, BorderLayout.CENTER);
 
             painelPergunta.add(perguntaContainer, BorderLayout.CENTER);
-            mainPanel.add(painelPergunta, BorderLayout.NORTH);
+
+            // Adiciona painelPergunta ao mainPanel
+            gbc.weighty = 0.3;
+            gbc.fill = GridBagConstraints.BOTH;
+            mainPanel.add(painelPergunta, gbc);
 
             // Painel das respostas
             JPanel painelRespostas = new JPanel(new GridLayout(2, 2, 20, 20));
-            painelRespostas.setBackground(COR_FUNDO);
+            painelRespostas.setOpaque(false);
             painelRespostas.setBorder(BorderFactory.createEmptyBorder(0, 100, 50, 100));
 
             botoesResposta = new ArrayList<>();
@@ -92,11 +124,13 @@ final public class TelaQuiz extends JFrame {
                 painelRespostas.add(btn);
             }
 
-            mainPanel.add(painelRespostas, BorderLayout.CENTER);
+            // Adiciona painelRespostas ao mainPanel
+            gbc.weighty = 0.5;
+            mainPanel.add(painelRespostas, gbc);
 
             // Botões auxiliares
             JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 20));
-            painelBotoes.setBackground(COR_FUNDO);
+            painelBotoes.setOpaque(false);
 
             JButton btnPular = criarBotaoAuxiliar("Pular");
             JButton btnDica = criarBotaoAuxiliar("Dica");
@@ -108,9 +142,18 @@ final public class TelaQuiz extends JFrame {
             painelBotoes.add(btnSair);
             painelBotoes.add(btnSalvarSair);
 
-            mainPanel.add(painelBotoes, BorderLayout.SOUTH);
+            // Adiciona painelBotoes ao mainPanel
+            gbc.weighty = 0.1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            mainPanel.add(painelBotoes, gbc);
 
             add(mainPanel);
+
+            topPanel.setOpaque(false);
+            painelPergunta.setOpaque(false);
+            perguntaContainer.setOpaque(false);
+            painelRespostas.setOpaque(false);   
+            painelBotoes.setOpaque(false);
 
             // Configura ações dos botões
             btnPular.addActionListener(e -> pularPergunta());
@@ -551,9 +594,13 @@ final public class TelaQuiz extends JFrame {
             timer.start();
         }
     }
-
     private void pularPergunta() {
+        if (puloUsado) {
+        JOptionPane.showMessageDialog(this, "Você já usou o pulo nesta partida!", "Pulo Indisponível", JOptionPane.WARNING_MESSAGE);
+        return;
+        }
         if (questaoAtual < bancoQuestoes.size() - 1) {
+            puloUsado = true; // marca que o pulo foi usado
             proximaPergunta();
         } else {
             JOptionPane.showMessageDialog(this, "Não há mais perguntas para pular!", "Aviso",
@@ -747,9 +794,10 @@ final public class TelaQuiz extends JFrame {
         try {
             File progressoFile = new File("progresso_" + usuarioId + "_" + dificuldade + ".txt");
             try (PrintWriter writer = new PrintWriter(new FileWriter(progressoFile))) {
-                // Linha 1: Estado atual do jogo
-                writer.println(questaoAtual + "," + pontos + "," + perguntasRespondidas + "," + dicaUsada);
-                
+                // Linha 1: Estado atual do jogo (agora com puloUsado)
+                writer.println(questaoAtual + "," + pontos + "," + perguntasRespondidas + "," + 
+                              dicaUsada + "," + puloUsado);
+
                 // Linha 2: Estado de cada questão (respondida ou não)
                 StringBuilder questoesRespondidas = new StringBuilder();
                 for (Questao q : bancoQuestoes) {
@@ -777,19 +825,20 @@ final public class TelaQuiz extends JFrame {
         File progressoFile = new File("progresso_" + usuarioId + "_" + dificuldade + ".txt");
         if (progressoFile.exists()) {
             try (BufferedReader reader = new BufferedReader(new FileReader(progressoFile))) {
-                // Carrega o estado do jogo
+                // Linha 1: Estado do jogo (agora com 5 campos)
                 String linha = reader.readLine();
                 if (linha != null) {
                     String[] dados = linha.split(",");
-                    if (dados.length >= 4) {
+                    if (dados.length >= 5) {  // Verifica se tem todos os campos
                         this.questaoAtual = Integer.parseInt(dados[0]);
                         this.pontos = Integer.parseInt(dados[1]);
                         this.perguntasRespondidas = Integer.parseInt(dados[2]);
                         this.dicaUsada = Boolean.parseBoolean(dados[3]);
+                        this.puloUsado = Boolean.parseBoolean(dados[4]);  // Novo campo
                     }
                 }
-                
-                // Carrega os IDs das questões respondidas
+
+                // Restante do método permanece igual...
                 linha = reader.readLine();
                 String[] questoesRespondidas = null;
                 if (linha != null) {
@@ -807,7 +856,6 @@ final public class TelaQuiz extends JFrame {
                     }
                 }
 
-                // Atualiza a pontuação exibida
                 lblPontuacao.setText("Pontos: R$ " + formatarPontuacao(pontos));
             } catch (IOException e) {
                 e.printStackTrace();

@@ -4,8 +4,11 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.sql.*;
 import java.util.*;
+import javax.imageio.ImageIO;
+import java.io.IOException;
 
 public class TelaExcluir extends JFrame {
     private int usuarioId;
@@ -13,58 +16,73 @@ public class TelaExcluir extends JFrame {
     private JComboBox<String> comboPergunta;
     private Map<String, Integer> materiasMap = new HashMap<>();
     private Map<String, Integer> perguntasMap = new HashMap<>();
-    private ConexaoBD conexaoBD = new ConexaoBD(); // 🔥 NOVO
+    private ConexaoBD conexaoBD = new ConexaoBD();
+    private BufferedImage backgroundImage;
 
     public TelaExcluir(int usuarioId) {
         this.usuarioId = usuarioId;
+        
+        // Carrega a imagem de fundo
+        try {
+            backgroundImage = ImageIO.read(getClass().getResource("/bg.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            backgroundImage = null;
+        }
+
         setTitle("Excluir Pergunta");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(18, 14, 129));
+        // Painel principal com imagem de fundo
+        JPanel mainPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    // Fallback se a imagem não carregar
+                    g.setColor(new Color(18, 14, 129));
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
+            }
+        };
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // TOPO
+        // TOPO - Botão de perfil
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
-        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        ImageIcon iconePerfilOriginal = new ImageIcon(getClass().getClassLoader().getResource("perfil.png"));
-        ImageIcon iconeConfigOriginal = new ImageIcon(getClass().getClassLoader().getResource("configuracoes.png"));
-
+        
+        ImageIcon iconePerfilOriginal = new ImageIcon(getClass().getResource("/perfil.png"));
         Image imgPerfil = iconePerfilOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-        Image imgConfig = iconeConfigOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-
+        
         JButton btnPerfil = new JButton(new ImageIcon(imgPerfil));
-        JButton btnConfig = new JButton(new ImageIcon(imgConfig));
         configurarBotaoIcone(btnPerfil);
-        configurarBotaoIcone(btnConfig);
         aplicarHoverIconeSimples(btnPerfil);
-        aplicarHoverIconeSimples(btnConfig);
-        btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
-
-        // Adicionar ação ao botão de perfil
         btnPerfil.addActionListener(e -> {
-            TelaUsuario telaUsuario = new TelaUsuario(this, usuarioId);
-            telaUsuario.setVisible(true);
+            new TelaUsuario(this, usuarioId).setVisible(true);
         });
-
-        topPanel.add(btnConfig, BorderLayout.WEST);
+        
         topPanel.add(btnPerfil, BorderLayout.EAST);
         mainPanel.add(topPanel, BorderLayout.NORTH);
 
+        // CENTRO - Conteúdo principal
         JPanel centerPanel = new JPanel();
-        centerPanel.setBackground(new Color(18, 14, 129));
+        centerPanel.setOpaque(false);
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(50, 0, 50, 0));
 
         JLabel tituloLabel = new JLabel("EXCLUIR PERGUNTAS");
         tituloLabel.setFont(new Font("SansSerif", Font.BOLD, 48));
         tituloLabel.setForeground(Color.WHITE);
         tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        tituloLabel.setBorder(BorderFactory.createEmptyBorder(40, 0, 60, 0));
+        tituloLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 60, 0));
         centerPanel.add(tituloLabel);
 
+        // Combobox de matérias
         JLabel lblMateria = new JLabel("Selecione a matéria:");
         lblMateria.setForeground(Color.WHITE);
         lblMateria.setFont(new Font("Arial", Font.BOLD, 18));
@@ -79,6 +97,7 @@ public class TelaExcluir extends JFrame {
         centerPanel.add(comboMateria);
         centerPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
+        // Combobox de perguntas
         JLabel lblPergunta = new JLabel("Selecione a pergunta:");
         lblPergunta.setForeground(Color.WHITE);
         lblPergunta.setFont(new Font("Arial", Font.BOLD, 18));
@@ -93,36 +112,41 @@ public class TelaExcluir extends JFrame {
         centerPanel.add(comboPergunta);
         centerPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
+        // Botão Excluir
         JButton btnExcluir = createMenuButton("EXCLUIR");
         btnExcluir.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnExcluir.addActionListener(e -> excluirPerguntaSelecionada());
         centerPanel.add(btnExcluir);
-        centerPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
+        // Centraliza o painel de conteúdo
         JPanel centerWrapper = new JPanel(new GridBagLayout());
-        centerWrapper.setBackground(new Color(18, 14, 129));
+        centerWrapper.setOpaque(false);
         centerWrapper.add(centerPanel);
         mainPanel.add(centerWrapper, BorderLayout.CENTER);
 
+        // RODAPÉ - Botão Voltar
         JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
-        rodape.setBackground(new Color(18, 14, 129));
+        rodape.setOpaque(false);
+        
         JButton voltarBtn = createMenuButton("VOLTAR");
         voltarBtn.setPreferredSize(new Dimension(130, 45));
         voltarBtn.addActionListener(e -> {
             new TelaEditar(usuarioId).setVisible(true);
             dispose();
         });
+        
         rodape.add(voltarBtn);
         mainPanel.add(rodape, BorderLayout.SOUTH);
 
         add(mainPanel);
         setVisible(true);
 
-        // 🔥 Lógica nova: carregar matérias e eventos
+        // Carrega as matérias e configura listeners
         carregarMaterias();
         comboMateria.addActionListener(e -> carregarPerguntas());
-        btnExcluir.addActionListener(e -> excluirPerguntaSelecionada());
     }
 
+    // Métodos de carregamento de dados (mantidos iguais)
     private void carregarMaterias() {
         try (Connection conn = conexaoBD.obterConexao();
              PreparedStatement stmt = conn.prepareStatement("SELECT id, nome FROM materias");
@@ -179,7 +203,8 @@ public class TelaExcluir extends JFrame {
 
         int perguntaId = perguntasMap.get(perguntaSelecionada);
 
-        int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja excluir esta pergunta?", "Confirmar", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "Tem certeza que deseja excluir esta pergunta?", "Confirmar", JOptionPane.YES_NO_OPTION);
         if (confirm != JOptionPane.YES_OPTION) return;
 
         try (Connection conn = conexaoBD.obterConexao();
@@ -190,7 +215,7 @@ public class TelaExcluir extends JFrame {
 
             if (afetadas > 0) {
                 JOptionPane.showMessageDialog(this, "Pergunta excluída com sucesso.");
-                carregarPerguntas(); // Atualiza lista
+                carregarPerguntas();
             } else {
                 JOptionPane.showMessageDialog(this, "Não foi possível excluir a pergunta.");
             }
@@ -201,7 +226,7 @@ public class TelaExcluir extends JFrame {
         }
     }
 
-    // ⬇️ Métodos utilitários permanecem os mesmos
+    // Métodos de estilo (mantidos iguais)
     private JButton createMenuButton(String text) {
         Color corNormal = new Color(195, 141, 41);
         Color corHover = new Color(255, 200, 70);

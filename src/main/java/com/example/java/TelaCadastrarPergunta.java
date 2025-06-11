@@ -13,6 +13,7 @@ public class TelaCadastrarPergunta extends JFrame {
     private List<CampoArredondado> alternativasErradas = new ArrayList<>();
     private ConexaoBD conexaoBD = new ConexaoBD();
     private int usuarioId;
+    private Image backgroundImage;
 
     public TelaCadastrarPergunta(int usuarioId) {
         this.usuarioId = usuarioId;
@@ -22,8 +23,64 @@ public class TelaCadastrarPergunta extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(18, 14, 129));
+        JPanel mainPanel = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Carrega a imagem apenas na primeira vez
+                if (backgroundImage == null) {
+                    try {
+                        ImageIcon icon = new ImageIcon(getClass().getResource("/bg3.png"));
+                        backgroundImage = icon.getImage();
+                    } catch (Exception e) {
+                        System.err.println("Erro ao carregar imagem de fundo: " + e.getMessage());
+                    }
+                }
+
+                // Desenha o fundo
+                if (backgroundImage != null) {
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    // Fallback se a imagem não carregar
+                    g.setColor(new Color(18, 14, 129));
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
+
+                // Sobreposição escura para melhorar legibilidade
+                g.setColor(new Color(0, 0, 0, 120));
+                g.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+
+
+        // Modifique a classe CampoArredondado para:
+        class CampoArredondado extends JTextField {
+            public CampoArredondado(int tamanho) {
+                super(tamanho);
+                setOpaque(false);
+                setFont(new Font("Arial", Font.PLAIN, 16));
+                setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+                setForeground(Color.WHITE);
+            }
+
+            @Override 
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setColor(new Color(255, 255, 255, 80));  // Fundo semi-transparente
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+                super.paintComponent(g);
+                g2.dispose();
+            }
+
+            @Override 
+            protected void paintBorder(Graphics g) {
+                // Borda sutil
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setColor(new Color(255, 255, 255, 150));
+                g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 30, 30);
+                g2.dispose();
+            }
+        }
 
         // TOPO
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -31,19 +88,13 @@ public class TelaCadastrarPergunta extends JFrame {
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         ImageIcon iconePerfil = new ImageIcon(getClass().getClassLoader().getResource("perfil.png"));
-        ImageIcon iconeConfig = new ImageIcon(getClass().getClassLoader().getResource("configuracoes.png"));
 
         Image perfilImg = iconePerfil.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-        Image configImg = iconeConfig.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
 
         JButton btnPerfil = new JButton(new ImageIcon(perfilImg));
-        JButton btnConfig = new JButton(new ImageIcon(configImg));
         configurarBotaoIcone(btnPerfil);
-        configurarBotaoIcone(btnConfig);
         aplicarHoverIconeSimples(btnPerfil);
-        aplicarHoverIconeSimples(btnConfig);
 
-        btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
 
         // Adicionar ação ao botão de perfil
         btnPerfil.addActionListener(e -> {
@@ -51,13 +102,12 @@ public class TelaCadastrarPergunta extends JFrame {
             telaUsuario.setVisible(true);
         });
 
-        topPanel.add(btnConfig, BorderLayout.WEST);
         topPanel.add(btnPerfil, BorderLayout.EAST);
         mainPanel.add(topPanel, BorderLayout.NORTH);
 
         // CENTRO
         JPanel centerPanel = new JPanel();
-        centerPanel.setBackground(new Color(18, 14, 129));
+        centerPanel.setOpaque(false);
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
 
         JLabel titulo = new JLabel("CADASTRAR PERGUNTA");
@@ -90,6 +140,7 @@ public class TelaCadastrarPergunta extends JFrame {
         estilizarDropdownArredondado(comboMateria);
         comboMateria.setMaximumSize(new Dimension(350, 45));
         comboMateria.setAlignmentX(Component.CENTER_ALIGNMENT);
+        comboMateria.setOpaque(false);
         centerPanel.add(comboMateria);
         centerPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
@@ -98,6 +149,7 @@ public class TelaCadastrarPergunta extends JFrame {
         estilizarDropdownArredondado(comboDificuldade);
         comboDificuldade.setMaximumSize(new Dimension(350, 45));
         comboDificuldade.setAlignmentX(Component.CENTER_ALIGNMENT);
+        comboDificuldade.setOpaque(false);
         centerPanel.add(comboDificuldade);
         centerPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
@@ -127,7 +179,6 @@ public class TelaCadastrarPergunta extends JFrame {
             CampoArredondado campoAlt = new CampoArredondado(30);
             campoAlt.setMaximumSize(new Dimension(500, 45));
             campoAlt.setAlignmentX(Component.CENTER_ALIGNMENT);
-            alternativasErradas.add(campoAlt);
             centerPanel.add(campoAlt);
             centerPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         }
@@ -141,17 +192,17 @@ public class TelaCadastrarPergunta extends JFrame {
                 campoAjuda.getText(),
                 campoRespostaCorreta.getText()
         ));
-        centerPanel.add(Box.createRigidArea(new Dimension(0, 25)));
+        centerPanel.add(Box.createRigidArea(new Dimension(0, 0)));
         centerPanel.add(btnCadastrar);
 
         JPanel centerWrapper = new JPanel(new GridBagLayout());
-        centerWrapper.setBackground(new Color(18, 14, 129));
+        centerWrapper.setOpaque(false);
         centerWrapper.add(centerPanel);
         mainPanel.add(centerWrapper, BorderLayout.CENTER);
 
         // RODAPÉ
         JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
-        rodape.setBackground(new Color(18, 14, 129));
+        rodape.setOpaque(false);
         JButton voltarBtn = createMenuButton("VOLTAR");
         voltarBtn.setPreferredSize(new Dimension(130, 45));
         voltarBtn.addActionListener(e -> {
@@ -309,7 +360,7 @@ public class TelaCadastrarPergunta extends JFrame {
         botao.setContentAreaFilled(false);
     }
 
-    // ✅ Classe utilitária interna para evitar erro de tipo
+    // Classe utilitária interna para evitar erro de tipo
     class CampoArredondado extends JTextField {
         public CampoArredondado(int tamanho) {
             super(tamanho);

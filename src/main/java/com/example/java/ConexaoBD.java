@@ -4,13 +4,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class ConexaoBD {
     private String host = "localhost";
     private String port = "3306";
     private String db = "quiz_educacional_db";
     private String user = "root";
-    private String password = "Felipe0069@";
+    private String password = "banana";
 
     public Connection obterConexao() throws Exception {
         String url = String.format(
@@ -81,5 +82,25 @@ public class ConexaoBD {
         }
 
         return -1; // Retorna -1 se não encontrado ou erro
+    }
+    public boolean verificarQuestoesDisponiveis(String dificuldade) {
+        String sql = "SELECT COUNT(*) FROM perguntas WHERE nivel_dificuldade = ?";
+
+        try (Connection conn = obterConexao();  // ← Usando seu método existente
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, dificuldade);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao verificar questões disponíveis:");
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

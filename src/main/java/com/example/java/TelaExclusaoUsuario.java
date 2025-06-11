@@ -2,71 +2,95 @@ package com.example.java;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.sql.*;
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.io.IOException;
 
 public class TelaExclusaoUsuario extends JFrame {
-
     private JTextField emailField;
     private int usuarioId;
+    private BufferedImage backgroundImage;
 
     public TelaExclusaoUsuario(int usuarioId) {
         this.usuarioId = usuarioId;
 
+        try {
+            // Carrega a imagem de fundo
+            backgroundImage = ImageIO.read(getClass().getResource("/bg.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            backgroundImage = null;
+        }
+
         setTitle("Exclusão de Usuário");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        getContentPane().setBackground(new Color(18, 14, 129));
-        setLayout(new BorderLayout());
 
-        JPanel wrapper = new JPanel(new GridBagLayout());
-        wrapper.setBackground(new Color(18, 14, 129));
-
-        JPanel painelCentral = new JPanel();
-        painelCentral.setBackground(new Color(18, 14, 129));
-        painelCentral.setLayout(new BoxLayout(painelCentral, BoxLayout.Y_AXIS));
+        // Painel principal com imagem de fundo
+        JPanel mainPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    // Redimensiona a imagem para cobrir todo o painel
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    // Fallback se a imagem não for carregada
+                    g.setColor(new Color(18, 14, 129));
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
+            }
+        };
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
 
         JLabel titulo = new JLabel("EXCLUIR USUÁRIO");
         titulo.setFont(new Font("SansSerif", Font.BOLD, 42));
         titulo.setForeground(Color.WHITE);
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        painelCentral.add(titulo);
-        painelCentral.add(Box.createRigidArea(new Dimension(0, 40)));
+        titulo.setBorder(BorderFactory.createEmptyBorder(0, 0, 40, 0));
+        mainPanel.add(titulo);
+
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setOpaque(false);
+        contentPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        contentPanel.setMaximumSize(new Dimension(800, Integer.MAX_VALUE));
 
         JLabel emailLabel = new JLabel("Login (e-mail) ✉");
         emailLabel.setForeground(Color.WHITE);
         emailLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         emailLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        painelCentral.add(emailLabel);
+        contentPanel.add(emailLabel);
 
         emailField = new JTextField();
         estilizarCampoArredondado(emailField);
-        painelCentral.add(emailField);
-        painelCentral.add(Box.createRigidArea(new Dimension(0, 30)));
+        contentPanel.add(emailField);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
         JButton excluirBtn = criarBotaoArredondado("Excluir", new Color(255, 50, 50), Color.WHITE);
         excluirBtn.setMaximumSize(new Dimension(230, 50));
         excluirBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        painelCentral.add(excluirBtn);
+        excluirBtn.addActionListener(e -> excluirUsuario());
+        contentPanel.add(excluirBtn);
 
-        wrapper.add(painelCentral);
-        add(wrapper, BorderLayout.CENTER);
-
-        JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
-        rodape.setBackground(new Color(18, 14, 129));
+        mainPanel.add(contentPanel);
+        mainPanel.add(Box.createVerticalGlue());
 
         JButton voltarBtn = criarBotaoArredondado("VOLTAR", new Color(255, 153, 0), Color.WHITE);
-        voltarBtn.setPreferredSize(new Dimension(130, 45));
+        voltarBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        voltarBtn.setPreferredSize(new Dimension(200, 50));
         voltarBtn.addActionListener(e -> {
             new TelaAdm(usuarioId).setVisible(true);
             dispose();
         });
 
-        rodape.add(voltarBtn);
-        add(rodape, BorderLayout.SOUTH);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        mainPanel.add(voltarBtn);
 
-        excluirBtn.addActionListener(e -> excluirUsuario());
-
+        add(mainPanel);
         setVisible(true);
     }
 

@@ -2,11 +2,16 @@ package com.example.java;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
+import java.io.InputStream;
 import javax.swing.*;
 import java.sql.*;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
 public class TelaEditar extends JFrame {
     private int usuarioId;
+    private BufferedImage buttonImage;
 
     public TelaEditar(int usuarioId) {
         this.usuarioId = usuarioId;
@@ -16,29 +21,57 @@ public class TelaEditar extends JFrame {
         setLocationRelativeTo(null);
         setResizable(true);
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(18, 14, 129));
+        // Carrega a imagem do botão
+        try {
+            buttonImage = ImageIO.read(getClass().getResource("/botao1.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erro ao carregar imagem do botão", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
 
-        // 🔝 ÍCONES TOPO
+        JPanel mainPanel = new JPanel(new BorderLayout()) {
+            private Image backgroundImage;
+            {
+                // Carrega a imagem no bloco de inicialização
+                try {
+                    InputStream imgStream = getClass().getResourceAsStream("/bg2.png");
+                    if (imgStream != null) {
+                        backgroundImage = ImageIO.read(imgStream);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Não foi possível carregar a imagem", "Erro", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Erro ao ler a imagem: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    // Desenha a imagem dimensionada para o tamanho do painel
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                }
+            }
+        };
+        // Configura todos os painéis internos como transparentes
+        mainPanel.setOpaque(false);
+
+        // No seu rodapé, altere para:
+        JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
+        rodape.setOpaque(false);  // Isso é crucial para ver o fundo
+
+        // ÍCONES TOPO
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         ImageIcon iconePerfilOriginal = new ImageIcon(getClass().getClassLoader().getResource("perfil.png"));
-        ImageIcon iconeConfigOriginal = new ImageIcon(getClass().getClassLoader().getResource("configuracoes.png"));
-
         Image imgPerfil = iconePerfilOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-        Image imgConfig = iconeConfigOriginal.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
 
         JButton btnPerfil = new JButton(new ImageIcon(imgPerfil));
-        JButton btnConfig = new JButton(new ImageIcon(imgConfig));
-
         configurarBotaoIcone(btnPerfil);
-        configurarBotaoIcone(btnConfig);
         aplicarHoverIconeSimples(btnPerfil);
-        aplicarHoverIconeSimples(btnConfig);
-
-        btnConfig.addActionListener(e -> new TelaSom().setVisible(true));
 
         // Adicionar ação ao botão de perfil
         btnPerfil.addActionListener(e -> {
@@ -46,13 +79,12 @@ public class TelaEditar extends JFrame {
             telaUsuario.setVisible(true);
         });
 
-        topPanel.add(btnConfig, BorderLayout.WEST);
         topPanel.add(btnPerfil, BorderLayout.EAST);
         mainPanel.add(topPanel, BorderLayout.NORTH);
 
-        // 🧱 PAINEL CENTRAL COM TÍTULO + BOTÕES
+        // PAINEL CENTRAL COM TÍTULO + BOTÕES
         JPanel centerPanel = new JPanel();
-        centerPanel.setBackground(new Color(18, 14, 129));
+        centerPanel.setOpaque(false);
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
 
         JLabel tituloLabel = new JLabel("EDITAR PERGUNTAS");
@@ -88,12 +120,11 @@ public class TelaEditar extends JFrame {
         }
 
         JPanel centerWrapper = new JPanel(new GridBagLayout());
-        centerWrapper.setBackground(new Color(18, 14, 129));
+        centerWrapper.setOpaque(false);
         centerWrapper.add(centerPanel);
         mainPanel.add(centerWrapper, BorderLayout.CENTER);
 
-        // ⬇ BOTÃO VOLTAR
-        JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
+        // BOTÃO VOLTAR
         rodape.setBackground(new Color(18, 14, 129));
 
         JButton voltarBtn = createMenuButton("VOLTAR");
@@ -141,54 +172,46 @@ public class TelaEditar extends JFrame {
         setVisible(true);
     }
 
-    // 🔘 BOTÃO ESTILIZADO
+    // BOTÃO ESTILIZADO COM A IMAGEM
     private JButton createMenuButton(String text) {
-        Color corNormal = new Color(195, 141, 41);
-        Color corHover = new Color(255, 200, 70);
-
         JButton button = new JButton(text) {
             @Override
             protected void paintComponent(Graphics g) {
+                if (buttonImage != null) {
+                    // Desenha a imagem do botão redimensionada
+                    g.drawImage(buttonImage, 0, 0, getWidth(), getHeight(), this);
+                }
+                
+                // Desenha o texto do botão
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 40, 40);
-
+                
                 FontMetrics fm = g2.getFontMetrics();
                 int x = (getWidth() - fm.stringWidth(getText())) / 2;
                 int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
 
                 g2.setColor(Color.BLACK);
                 g2.drawString(getText(), x + 1, y + 1);
-                g2.setColor(getForeground());
+                g2.setColor(Color.WHITE);
                 g2.drawString(getText(), x, y);
-                g2.dispose();
-            }
-
-            @Override
-            protected void paintBorder(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(corNormal);
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 40, 40);
                 g2.dispose();
             }
         };
 
         button.setFont(new Font("Arial", Font.BOLD, 25));
-        button.setBackground(corNormal);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         button.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                button.setBackground(corHover);
+                button.setForeground(new Color(255, 200, 70));
             }
 
             public void mouseExited(MouseEvent e) {
-                button.setBackground(corNormal);
+                button.setForeground(Color.WHITE);
             }
         });
 

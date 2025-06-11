@@ -4,14 +4,18 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.Graphics;
 
 
 
 public class TelaLogin extends JFrame {
-    private AudioPlayer player;
 
     private JTextField txtEmail;
     private JPasswordField txtSenha;
+    private BufferedImage backgroundImage;
     
     
 
@@ -21,20 +25,29 @@ public class TelaLogin extends JFrame {
         getContentPane().setBackground(new Color(18, 14, 129));
         setSize(1000, 800);
         setMinimumSize(new Dimension(800, 600));
-        
-        
-            
-        player = new AudioPlayer();
-        player.play("/audio/musicajogodomilhao.wav");
-        
-        
-        JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBackground(new Color(18, 14, 129));
+
+        try {
+            backgroundImage = ImageIO.read(getClass().getResource("/bg3.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        JPanel mainPanel = new JPanel(new GridBagLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                }
+            }
+        };
+        mainPanel.setOpaque(false); // Deixe transparente para exibir o fundo
+        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
         mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         JPanel centerPanel = new JPanel();
+        centerPanel.setOpaque(false);
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-        centerPanel.setBackground(new Color(18, 14, 129));
         centerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel logoLabel = new JLabel();
@@ -118,6 +131,16 @@ public class TelaLogin extends JFrame {
         centerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         centerPanel.add(btnEntrar);
 
+        centerPanel.add(logoLabel);
+        centerPanel.add(titulo);
+        centerPanel.add(lblEmail);
+        centerPanel.add(txtEmail);
+        centerPanel.add(lblSenha);
+        centerPanel.add(txtSenha);
+        centerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        centerPanel.add(btnEntrar);
+        centerPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Espaço entre os botões
+        
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -145,7 +168,8 @@ public class TelaLogin extends JFrame {
 
                 revalidate();
                 repaint();
-            }           
+                
+            }
         });
     }
 
@@ -294,7 +318,6 @@ public class TelaLogin extends JFrame {
         protected void paintBorder(Graphics g) {
         }
     }
-
    public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new TelaLogin().setVisible(true);
